@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2024 Roy Wright
+#
+# SPDX-License-Identifier: MIT
+
+version: "3"
+
+vars:
+  POETRY_RUNNER: poetry run --
+  POETRY_DEV_RUNNER: poetry run --
+  POETRY_DOCS_RUNNER: poetry run --
+  POETRY_TEST_RUNNER: poetry run --
+  POETRY_METRICS_RUNNER: poetry run --
+  POETRY_SPHINX_RUNNER: poetry run --
+
+tasks:
+  build:
+    # [private] build dist packages
+    cmds:
+      - poetry build
+
+  env-prune:
+    # [private] remove development environment (i.e. virtual environments)
+    cmds:
+      - poetry env remove --all
+
+  make-env:
+    # create virtual environment
+    cmds:
+      - poetry run -- true
+
+  show-env:
+    # [private] show env using poetry
+    cmds:
+      - echo "Creating virtualenv in .venv"
+      - poetry env list
+      - poetry env info
+
+  unit-test:
+    # [private] Run the unit tests for the supported versions of python.
+    cmds:
+      # for poetry, tox is used for multiple python testing
+      - poetry run -- pytest tests
+      - poetry run -- tox
+
+  update-env:
+    # [private] Update virtual environment
+    cmds:
+      # [private] update development virtual environment
+      - poetry update
+      - poetry run -- pip install --upgrade pip
+      # install project into virtual environment
+      - poetry install
+
+  lockfiles-enable:
+    # Enable backend to use requirements.txt files managed by pip-compile as lock files.
+    cmds:
+      - echo "Not implemented"
+
+  lockfiles-disable:
+    # [private] Disable backend to use requirements.txt files managed by pip-compile as lock files.
+    cmds:
+      - echo "Not implemented"

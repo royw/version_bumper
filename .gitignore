@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2024 Roy Wright <roy@wright.org>
+#
+# SPDX-License-Identifier: MIT
+
+.python-version
+dist/
+metrics/
+site/
+.tox/
+.nox/
+.coverage
+**/__pycache__/*.pyc
+reuse.spdx
+**/*_cache/
+**/.cache/
+tests/*.lastrun
+taskfiles/front-end.yaml
+**/requirements*.txt*
+src/*.egg-info

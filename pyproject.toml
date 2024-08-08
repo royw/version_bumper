@@ -1,0 +1,717 @@
+# SPDX-FileCopyrightText: 2024 Roy Wright
+#
+# SPDX-License-Identifier: MIT
+
+# ref: https://packaging.python.org/en/latest/specifications/pyproject-toml
+
+[build-system]
+# defaults to using Hatch.
+# Run "task switch-to-poetry" or "task switch-to-setuptools" to change as
+# taskfiles/front-end*.yaml symbolic links need to be kept in sync with
+# these values.
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+# TOML type: string
+# The name of the project.
+# Tools SHOULD normalize this name, as soon as it is read for internal consistency.
+name = "version_bumper"
+
+# TOML type: string
+# The version of the project, as defined in the Version specifier specification.
+# Users SHOULD prefer to specify already-normalized versions
+version = "0.1.0"
+
+# TOML type: string
+# The summary description of the project in one line. Tools MAY error if this includes multiple lines.
+description = "Python package version utility to bump a version by parts."
+
+# TOML type: string or table
+# The full description of the project (i.e. the README).
+#
+# The key accepts either a string or a table. If it is a string then it is a path relative to pyproject.toml
+# to a text file containing the full description. Tools MUST assume the file’s encoding is UTF-8. If the
+# file path ends in a case-insensitive .md suffix, then tools MUST assume the content-type is text/markdown.
+# If the file path ends in a case-insensitive .rst, then tools MUST assume the content-type is text/x-rst.
+# If a tool recognizes more extensions than this PEP, they MAY infer the content-type for the user without
+# specifying this key as dynamic. For all unrecognized suffixes when a content-type is not provided, tools
+# MUST raise an error.
+#
+# more:  https://packaging.python.org/en/latest/specifications/pyproject-toml/#readme
+readme = "README.md"
+
+# TOML type: string
+# The Python version requirements of the project.
+requires-python = ">=3.11"
+
+# TOML type: table
+# The table may have one of two keys. The file key has a string value that is a file path relative to
+# pyproject.toml to the file which contains the license for the project. Tools MUST assume the file’s
+# encoding is UTF-8. The text key has a string value which is the license of the project. These keys are
+# mutually exclusive, so a tool MUST raise an error if the metadata specifies both keys.
+license = {file = "LICENSES/MIT.txt"}
+
+# TOML type: Array of inline tables with string keys and values
+# The people or organizations considered to be the “authors” of the project. The exact meaning is open to
+# interpretation — it may list the original or primary authors, current maintainers, or owners of the package.
+#
+# These keys accept an array of tables with 2 keys: name and email. Both values must be strings. The name
+# value MUST be a valid email name (i.e. whatever can be put as a name, before an email, in RFC 822) and not
+# contain commas. The email value MUST be a valid email address. Both keys are optional, but at least one of
+# the keys must be specified in the table.
+#
+# more:  https://packaging.python.org/en/latest/specifications/pyproject-toml/#authors-maintainers
+authors = [
+  {name = "Roy Wright", email = "roy@wright.org"}
+]
+
+# TOML type: Array of inline tables with string keys and values
+# The “maintainers” key is similar to “authors” in that its exact meaning is open to interpretation.
+maintainers = [
+  {name = "Roy Wright", email = "roy@wright.org"}
+]
+
+# TOML type: array of strings
+# The keywords for the project.
+keywords = ["python", "CLI", "application"]
+
+# TOML type: array of strings
+# Trove classifiers (https://pypi.org/classifiers/) which apply to the project.
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+]
+
+# TOML type: table with keys and values of strings
+# A table of URLs where the key is the URL label and the value is the URL itself.
+urls = {"version_bumper" = "https://github.com/royw/version_bumper"}
+
+# TOML type: array of string
+# Specifies which keys listed by this PEP were intentionally unspecified so another tool can/will provide
+# such metadata dynamically. This clearly delineates which metadata is purposefully unspecified and expected
+# to stay unspecified compared to being provided via tooling later on.
+#
+# more: https://packaging.python.org/en/latest/specifications/pyproject-toml/#dynamic
+dynamic = []
+
+# TOML type: table ([project.scripts], [project.gui-scripts], and [project.entry-points])
+# Entry Points
+# There are three tables related to entry points. The [project.scripts] table corresponds to the
+# console_scripts group in the entry points specification. The key of the table is the name of the entry
+# point and the value is the object reference.
+#
+# more: https://packaging.python.org/en/latest/specifications/pyproject-toml/#entry-points
+scripts = {'main' = "version_bumper.__main__:main"}
+#project.gui-scripts = {}
+#project.entry-points = {}
+
+
+# TOML type: Array of PEP 508 strings (dependencies)
+# For dependencies, it is a key whose value is an array of strings. Each string represents a dependency of
+# the project and MUST be formatted as a valid PEP 508 (https://peps.python.org/pep-0508/) string.
+# Each string maps directly to a Requires-Dist entry.
+#
+# Note: tox needs project dependencies instead of tool.poetry.dependencies
+# Also note a different grammar is required for version specification
+dependencies = [
+  "loguru>=0.7.2, <0.8.0",
+  "pathvalidate<4.0.0,>=3.2.0",
+  "tomlkit<0.13.0,>=0.12.5",
+]
+
+# TOML type: a table with values of arrays of PEP 508 strings (optional-dependencies)
+# For optional-dependencies, it is a table where each key specifies an extra and whose value is an array of
+# strings. The strings of the arrays must be valid PEP 508 strings. The keys MUST be valid values for
+# Provides-Extra. Each value in the array thus becomes a corresponding Requires-Dist entry for the matching
+# Provides-Extra metadata.
+[project.optional-dependencies]
+dev = [
+  "blacken-docs<2.0.0,>=1.18.0",
+  "build<2.0.0,>=1.2.1",
+  "fawltydeps>=0.15.0,<0.16.0",
+  "flict<2.0.0,>=1.2.14",
+  "httpx<0.28.0,>=0.27.0",
+  "liccheck<0.10.0,>=0.9.2",
+  "mypy<2.0.0,>=1.10.1",
+  "pip-tools<8.0.0,>=7.4.1",
+  "pre-commit<4.0.0,>=3.7.1",
+  "pytest>=8.2.2,<9.0.0",
+  "pytest-cov>=5.0.0,<6.0.0",
+  "pyupgrade<4.0.0,>=3.16.0",
+  "reuse<4.0.0,>=3.0.2",
+  "ruff>=0.4.7,<0.5.0",
+  "shellcheck-py<0.11.0,>=0.10.0.1",
+  "toml-cli<0.8.0,>=0.7.0",
+  "tox<5.0.0,>=4.14.2",
+  "validate-pyproject>=0.18.0,<0.19.0",
+  "check-pyproject@git+https://github.com/royw/check_pyproject.git",
+]
+test = [
+  "coverage[toml]<8.0.0,>=7.5.4",
+  "pytest>=8.2.2, <9.0.0",
+  "pytest-cov<6.0.0,>=5.0.0",
+]
+docs = [
+  "mkdocs<2.0.0,>=1.6.0",
+  "mkdocstrings<0.26.0,>=0.25.1",
+  "mkdocstrings-python<2.0.0,>=1.10.3",
+  "mkdocs-gen-files<0.6.0,>=0.5.0",
+  "mkdocs-literate-nav<0.7.0,>=0.6.1",
+  "mkdocs-section-index<0.4.0,>=0.3.9",
+  "mkdocs-material<10.0.0,>=9.5.25",
+]
+metrics = [
+  "radon<7.0.0,>=6.0.1",
+]
+sphinx = [
+  "furo>=2024.5.6,<2025.0.0",
+  "myst-parser<4.0.0,>=3.0.1",
+  "sphinx<8.0.0,>=7.3.7",
+  "sphinx-autodoc-typehints<3.0.0,>=2.1.1",
+  "sphinx_copybutton>=0.5.2,<0.6.0",
+]
+
+### liccheck check that dependency licenses are acceptable
+
+[tool.liccheck]
+authorized_licenses = [
+    "bsd",
+    "new bsd",
+    "bsd license",
+    "new bsd license",
+    "simplified bsd",
+    "apache",
+    "apache 2.0",
+    "apache-2.0",
+    "apache software",
+    "apache software license",
+    "gnu lgpl",
+    "lgpl with exceptions or zpl",
+    "isc",
+    "isc license",
+    "isc license (iscl)",
+    "mit",
+    "mit license",
+    "mozilla public license 2.0 (mpl 2.0)",
+    "python software foundation",
+    "python software foundation license",
+    "zpl 2.1",
+]
+unauthorized_licenses = [
+    "gpl v3",
+]
+# strategy_ini_file = "./liccheck.ini"
+# level = "STANDARD"
+# requirement_txt_file = "./requirements.txt" # ignored if dependencies or optional_dependencies are defined
+# reporting_txt_file = "path/to/reporting.txt file" # by default is None
+# no_deps = false
+dependencies = true # to load [project.dependencies]
+optional_dependencies = []  # for liccheck to load extras from [project.optional-dependencies]
+
+[tool.liccheck.authorized_packages]
+uuid = "1.30"
+
+### Hatch build system https://hatch.pypa.io/1.9/config/metadata/
+
+[tool.hatch.metadata]
+# By default, dependencies are not allowed to define direct references.
+# To disable this check, set allow-direct-references to true
+allow-direct-references = true
+
+#[tool.hatch.build]
+# build output directory, defaults to "dist"
+#directory = "dist"
+
+# Hatch supports using your projects __version__ or using project.version
+# as the definitive source of version.
+#
+# just remove
+# project.version
+# and set
+# project.dynamic = ["version"]
+# then add
+#[tool.hatch.version]
+#path = "src/check_pyproject/__init__.py"
+#
+# Unfortunately poetry only supports pyproject as the definitive
+# source of version and recommends using metadata to retrieve the
+# version in your project (think project --version) along with the
+# requirement that your project be pip installed so metadata is
+# available.  There are plugin the purportedly work around
+# poetry's biased opinion, for example, poetry-version-plugin which
+# does not work with a src project layout (src/package).
+
+#[too.hatch.envs]
+# Set the type ("virtual") and path (".venv") for each environment to facilitate
+# using an IDE such as PyCharm.
+# Here we direct hatch to create and use its virtual environment in .venv/ which
+# allows setting the project to use the same virtual environment as hatch.
+# In PyCharm, set "python interpreter, local, virtual environment, existing" to .venv/
+
+# environment scripts allow you to assign a command to an alias
+# for example:
+# test = "pytest {args}"
+# assigns the command "pytest {args}" to test.
+# to use: `hatch run test arg...`
+# note, you can access dependencies without adding a script entry, for example:
+# `hatch run pytest`
+
+[tool.hatch.env]
+requires = []
+
+[tool.hatch.envs.default]
+features = ["dev", "test", "docs", "metrics"]
+type = "virtual"
+path = ".venv"
+pip-compile-resolver = "uv"   # pip, uv
+pip-compile-verbose = false
+pip-compile-installer = "uv"   # pip, pip-sync, uv
+pip-compile-install-args = []
+pip-compile-constraint = "default"
+pip-compile-hashes = false
+pip-compile-args = []
+
+[tool.hatch.envs.dev]
+scripts.test = "pytest {args}"
+
+[tool.hatch.envs.docs]
+scripts.build = "mkdocs build --clean --strict"
+scripts.serve = "mkdocs serve --dev-addr localhost:8000"
+
+#[tool.hatch.envs.sphinx]
+#features = ["sphinx"]
+
+[tool.hatch.envs.metrics]
+
+[tool.hatch.envs.test]
+#dependencies = [
+#  "coverage[toml]",
+#  "pytest",
+#  "pytest-cov",
+#]
+#scripts.test = "pytest {args}"
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.11", "3.12"]
+
+### pytest
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+  "-ra", "--showlocals",
+  "--strict-markers",
+  "--strict-config",
+#  "--import-mode=importlib",
+]
+xfail_strict = true
+filterwarnings = [
+  "error",
+]
+log_cli_level = "INFO"
+pythonpath = "src"
+testpaths = [
+    "tests"
+]
+
+### mypy linter
+
+[tool.mypy]
+files = ["src", "tests"]
+python_version = "3.11"       # *** set to the oldest supported version of python ***
+warn_unused_configs = true
+strict = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+warn_unreachable = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = "version_bumper.*"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+module = "tomlkit.parser"
+implicit_reexport = true
+
+### ruff linter/formatter: https://docs.astral.sh/ruff/settings
+
+[tool.ruff]
+# Allow imports relative to the "src" and "tests" directories.
+src = ["src", "tests"]
+# In addition to the standard set of exclusions, omit these.
+extend-exclude = [".tox", "dist", "docs", "metrics", "scripts", "site"]
+# Set the maximum line length to 119.
+line-length = 119
+# fix lint issues.
+fix = true
+# Enumerate all fixed violations.
+show-fixes = true
+
+[tool.ruff.format]
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true
+
+
+[tool.ruff.lint]
+# Add the `line-too-long` rule to the enforced rule set. By default, Ruff omits rules that
+# overlap with the use of a formatter, like Black, but we can override this behavior by
+# explicitly adding the rule.
+# https://docs.astral.sh/ruff/rules
+# extend-select = ["E501"]
+extend-select = [
+  #"F",        # pyflakes
+  #"E",        # pycodestyle Error
+  #"W",        # pycodestyle Warning
+  "C901",     # mccade
+  "I",        # isort
+  "N",        # pep8-naming
+  #"D",        # pydocstyle
+  "UP",       # pyupgrade
+  "YTT",      # flake8-2020
+  #"ANN",      # flake8-annotations
+  #"ASYNC",    # flake8-async
+  #"S",        # flake8-bandit
+  #"BLE",      # flake8-blind-except
+  #"FBT",      # flake8-boolean-trap
+  "B",        # flake8-bugbear
+  #"A",        # flake8-builtins
+  #"COM",      # flake8-commas
+  #"CPY",      # flake8-copyright
+  "C4",       # flake8-comprehensions
+  #"DTZ",      # flake8-datetimez
+  #"T10",      # flake8-debugger
+  #"DJ",       # flake8-django
+  "EM",       # flake8-errmsg
+  "EXE",      # flake8-executable
+  #"FA",       # flake8-future-annotations
+  #"ICS",      # flake8-implicit-str-concat
+  "ICN",      # flake8-import-conventions
+  "LOG",      # flake8-logging (added 7/4/24)
+  "G",        # flake8-logging-format
+  "INP",      # flake8-no-pep420 (added 7/4/24)
+  "PIE",      # flake8-pie
+  "T20",      # flake8-print
+  #"PYI",      # flake8-pyi
+  "PT",       # flake8-pytest-style
+  #"Q",        # flake8-quotes
+  #"RSE",      # flake8-raise
+  "RET",      # flake8-return
+  #"SLF",      # flake8-self
+  #"SLOT",     # flake8-slot
+  "SIM",      # flake8-simplify
+  #"TID",      # flake8-tidy
+  #"TCH",      # flake8-type-checking
+  #"INT",      # flake8-gettest
+  "ARG",      # flake8-unused-arguments
+  "PTH",      # flake8-use-pathlib
+  #"TD",       # flake8-todos
+  #"FIX",      # flake8-fixme
+  #"ERA",      # eradicate
+  "PD",       # pandas-vet
+  "PGH",      # pygrep-hooks
+  "PL",       # pylint
+  #"TRY",      # tryceratops
+  #"FLY",      # flynt
+  "NPY",      # NumPy specific rules
+  #"AIR",      # airflow
+  #"PERF",     # perflint
+  #"FURB",     # refurb
+  "RUF",      # Ruff-specific
+]
+ignore = [
+  "PLR09",    # Too many <...>
+  "PLR2004",  # Magic value used in comparison
+  "ISC001",   # Conflicts with formatter
+  "S101",     # pytest uses "assert" so allow it
+]
+isort.required-imports = ["from __future__ import annotations"]
+# Uncomment if using a _compat.typing backport
+# typing-modules = ["scientific python._compat.typing"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["T20"]
+"noxfile.py" = ["T20"]
+
+[tool.pylint]
+py-version = "3.8"
+ignore-paths = [".*/_version.py"]
+reports.output-format = "colorized"
+similarities.ignore-imports = "yes"
+messages_control.disable = [
+  "design",
+  "fixme",
+  "line-too-long",
+  "missing-module-docstring",
+  "missing-function-docstring",
+  "wrong-import-position",
+]
+
+[tool.fawltydeps]
+code = ["src"]  # Only search for imports under ./src
+deps = ["pyproject.toml"]  # Only look for declared dependencies here
+ignore_unused = ["radon", "pytest-cov", "pytest", "tox", "fawltydeps", "mkdocs", "mkdocstrings-python",
+  "mkdocs-literate-nav", "mkdocs-section-index", "ruff", "mkdocs-material", "mkdocs-gen-files",
+  "flict", "furo", "liccheck", "mypy", "myst-parser", "pre-commit", "reuse", "sphinx",
+  "sphinx-autodoc-typehints", "sphinx-copybutton", "sphinx_copybutton", "tomlkit", "validate-pyproject",
+  "blacken-docs", "pyupgrade", "shellcheck-py", "coverage", "mkdocstrings", "toml-cli", "build", "httpx",
+  "pip-tools",
+  "check-pyproject",
+]
+output_format = "human_detailed"  # Detailed report by default
+
+[tool.coverage.run]
+source_pkgs = ["version_bumper"]
+branch = true
+parallel = true
+omit = [
+  "src/version_bumper/__init__.py",
+]
+
+[tool.coverage.paths]
+source = ["src/version_bumper"]
+tests = ["tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+exclude_also = [
+  '\.\.\.',
+  'if typing.TYPE_CHECKING:',
+]
+
+### local Taskfile.yml options (not Taskfile options)
+
+[tool.taskfile]
+# For reuse copyright/license checking set reuse to either "enabled" or "disabled"
+# You should not directly edit this setting.  Instead, use the tasks "task reuse-enable" and
+# "task reuse-disable" as they also update the .git/hooks/pre-commit to either skip or not
+# skip the reuse hook.
+reuse = "disabled"
+
+### Poetry build system
+
+[tool.poetry]
+# Poetry can be operated in two different modes. The default mode is the package mode, which is the right
+# mode if you want to package your project into a sdist or a wheel and perhaps publish it to a package
+# index. In this mode, some metadata such as name and version, which are required for packaging, are
+# mandatory. Further, the project itself will be installed in editable mode when running poetry install.
+#package-mode = true
+
+# The name of the package. Required in package mode
+name = "version_bumper"
+
+# The version of the package. Required in package mode
+# This should be a valid PEP 440 string.
+version = "0.1.0"
+
+# A short description of the package. Required in package mode
+description = "Python package version utility to bump a version by parts."
+
+# The license of the package.
+# For list of valid licenses, see: https://python-poetry.org/docs/pyproject/#license
+license = "MIT"
+
+# The authors of the package. Required in package mode
+# This is a list of authors and should contain at least one author. Authors must be in the form name <email>.
+authors = ["Roy Wright <roy@wright.org>"]
+
+# The maintainers of the package. Optional
+# This is a list of maintainers and should be distinct from authors. Maintainers may contain an email and be
+# in the form name <email>.
+maintainers = ["Roy Wright <roy@wright.org>"]
+
+# A path, or list of paths corresponding to the README file(s) of the package. Optional
+# The file(s) can be of any format, but if you intend to publish to PyPI keep the recommendations for a
+# PyPI-friendly README in mind. README paths are implicitly relative to pyproject.toml.
+# more: https://python-poetry.org/docs/pyproject/#readme
+readme = "README.md"
+
+# A URL to the website of the project. Optional
+homepage = "https://github.com/royw/version_bumper"
+
+# A URL to the repository of the project. Optional
+repository = "https://github.com/royw/version_bumper"
+
+# A URL to the documentation of the project. Optional
+documentation = "https://github.com/royw/version_bumper"
+
+# A list of keywords that the package is related to. Optional
+keywords = ['python', 'CLI', 'application']
+
+# A list of PyPI trove classifiers that describe the project. Optional
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Natural Language :: English",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+]
+
+# A list of packages and modules to include in the final distribution.
+# If your project structure differs from the standard one supported by poetry, you can specify the packages
+# you want to include in the final distribution.
+# more: https://python-poetry.org/docs/pyproject/#packages
+#packages = [
+#  {include = "my_package", from = "lib", to = "target_package"}
+#]
+packages = [
+  { include = "version_bumper", from = "src" },
+]
+# A list of patterns that will be included in the final package.
+#
+# You can explicitly specify to Poetry that a set of globs should be ignored or included for the purposes
+# of packaging. The globs specified in the exclude field identify a set of files that are not included when
+# a package is built.
+#
+# If a VCS is being used for a package, the exclude field will be seeded with the VCS’ ignore settings
+# (.gitignore for git for example).
+# more: https://python-poetry.org/docs/pyproject/#include-and-exclude
+include = [
+    { path = "tests", format = "sdist" },
+]
+
+# DOES NOT WORK with src/package layout
+# https://github.com/tiangolo/poetry-version-plugin
+# plugin for dynamically extracting the package version.
+# It can read the version from a file __init__.py
+#[tool.poetry-version-plugin]
+#source = "init"
+
+# Poetry is configured to look for dependencies on PyPI by default. Only the name and a version string are
+# required in this case.
+# more: https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
+[tool.poetry.dependencies]
+loguru = "^0.7.2"
+pathvalidate = "^3.2.0"
+python = "^3.11"
+tomlkit = "^0.12.5"
+
+# You can organize your dependencies in groups to manage them in a more granular way.
+[tool.poetry.group.dev.dependencies]
+blacken-docs = "^1.18.0"
+build = "^1.2.1"
+fawltydeps = "^0.15.0"
+flict = "^1.2.14"
+liccheck = "^0.9.2"
+mypy = "^1.10.1"
+pre-commit = "^3.7.1"
+pytest = "^8.2.2"
+pytest-cov = "^5.0.0"
+pyupgrade = "^3.16.0"
+reuse = "^3.0.2"
+ruff = "^0.4.7"
+shellcheck-py = "^0.10.0.1"
+toml-cli = "^0.7.0"
+tox = "^4.14.2"
+validate-pyproject = "^0.18"
+httpx = "^0.27.0"
+pip-tools = "^7.4.1"
+check-pyproject = {git = "https://github.com/royw/check_pyproject.git"}
+
+[tool.poetry.group.test.dependencies]
+coverage = {extras = ["toml"], version = "^7.5.4"}
+pytest = "^8.2.2"
+pytest-cov = "^5.0.0"
+
+[tool.poetry.group.metrics.dependencies]
+radon = "^6.0.1"
+
+# This section describes the scripts or executables that will be installed when installing the package.
+# When a script is added or updated, run poetry install to make them available in the project’s virtualenv.
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocstrings-python = "^1.10.3"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+mkdocs-material = "^9.5.25"
+mkdocs-section-index = "^0.3.9"
+mkdocstrings = "^0.25.1"
+
+[tool.poetry.group.sphinx.dependencies]
+furo = "^2024.5.6"
+myst-parser = "^3.0.1"
+sphinx = "^7.3.7"
+sphinx-copybutton = "^0.5.2"
+sphinx-autodoc-typehints = "^2.1.1"
+
+[tool.poetry.extras]
+dev = [
+  "blacken-docs",
+  "build",
+  "fawltydeps",
+  "flict",
+  "liccheck",
+  "mypy",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pyupgrade",
+  "reuse",
+  "ruff",
+  "shellcheck-py",
+  "toml-cli",
+  "tomlkit",
+  "tox",
+  "validate-pyproject",
+  "httpx",
+  "pip-tools",
+  "check-pyproject"
+]
+test = [
+  "coverage",
+  "pytest",
+  "pytest-cov",
+  "tomlkit"
+]
+metrics = [
+  "radon"
+]
+docs = [
+  "mkdocs",
+  "mkdocstrings-python",
+  "mkdocs-gen-files",
+  "mkdocs-literate-nav",
+  "mkdocs-material",
+  "mkdocs-section-index",
+  "mkdocstrings"
+]
+sphinx = [
+  "furo",
+  "myst-parser",
+  "sphinx",
+  "sphinx-copybutton",
+  "sphinx-autodoc-typehints"
+]
+
+[tool.poetry.scripts]
+main = "version_bumper.__main__:main"
+
+# Poetry supports extras to allow expression of:
+#
+# optional dependencies, which enhance a package, but are not required; and
+# clusters of optional dependencies.
+# more: https://python-poetry.org/docs/pyproject/#extras
+
+# Poetry supports arbitrary plugins, which are exposed as the ecosystem-standard entry points and
+# discoverable using importlib.metadata. This is similar to (and compatible with) the entry points
+# feature of setuptools. The syntax for registering a plugin is:
+# more: https://python-poetry.org/docs/pyproject/#plugins
+
+# In addition to the basic urls (homepage, repository and documentation), you can specify any custom url
+# in the urls section.
+[tool.poetry.urls]
+"version_bumper" = "https://github.com/royw/version_bumper"
