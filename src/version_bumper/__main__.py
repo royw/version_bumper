@@ -18,25 +18,19 @@ Finally, add your application into the main() method.
 
 from __future__ import annotations
 
-import atexit
 import sys
-from collections.abc import Sequence
-from pprint import pformat
-from time import sleep
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from version_bumper.clibones.application_settings import ApplicationSettings
-from version_bumper.clibones.graceful_interrupt_handler import GracefulInterruptHandler
+from version_bumper.commands import bump_command, get_command, release_command, set_command, version_command
+from version_bumper.version import Version
 
 if TYPE_CHECKING:
     import argparse
     from collections.abc import Sequence
-
-DEFAULT_COUNT = 5
-MAX_COUNT = 10
-MIN_COUNT = 0
 
 
 # noinspection PyMethodMayBeStatic
@@ -56,16 +50,17 @@ class Settings(ApplicationSettings):
             exit(1)
     """
 
-    # TODO: verify the __project_* variables are correct
-
-    __project_name: str = "version_bumper"
+    __project_name: str = "Version Bumper"
     """The name of the project"""
 
     __project_package: str = "version_bumper"
     """The name of the package this settings belongs to. """
 
     __project_description: str = (
-        "Python package version utility to bump a version by parts."
+        "Python package version utility to bump a version by parts: "
+        "[N!]N(.N)*[{a|b|rc}N][.postN][.devN][+N] "
+        "or with part names in lowercase: "
+        "[epoch!]major[.minor[.patch]][a|b|rc][.post][.dev][+local]"
     )
     """A short description of the application."""
 
@@ -79,7 +74,7 @@ class Settings(ApplicationSettings):
             config_sections=[Settings.__project_package],
             args=args,
         )
-        self.add_persist_keys({"pyproject_toml_files", "loglevel", "debug"})
+        self.add_persist_keys({"pyproject_toml_path", "loglevel", "debug"})
 
     def add_parent_parsers(self) -> list[argparse.ArgumentParser]:
         """This is where you should add any parent parsers for the main parser.
@@ -98,14 +93,55 @@ class Settings(ApplicationSettings):
         """
         # use normal argparse commands to add arguments to the given parser.  Example:
 
-        # TODO: Remove example app --count N argument
-        app_group = parser.add_argument_group("Application arguments")
-        app_group.add_argument(
-            "--count",
-            type=int,
-            default=DEFAULT_COUNT,
-            help=f"How many times (0-{MAX_COUNT} to execute the example loop (default: {DEFAULT_COUNT})",
+        pyproject_toml_path = Path(__file__).parent.parent.parent.joinpath("pyproject.toml").resolve()
+
+        subparsers = parser.add_subparsers(dest="command")
+        parser.add_argument(
+            "pyproject_toml_path",
+            nargs="?",
+            default=pyproject_toml_path,
+            type=Path,
+            help="pyproject.toml file update the version within.",
         )
+
+        bump_parser = subparsers.add_parser(
+            "bump", description="Bump the given part of the current version in the " "pyproject.toml file."
+        )
+        bump_parser.add_argument("part", choices=Version.PARTS, help="Bump this part of the current version")
+        bump_parser.add_argument(
+            "--json", action="store_true", help='Input is JSON string containing the part name to increment, ex: "dev"'
+        )
+
+        version_parser = subparsers.add_parser(
+            "version", description="Set the current version in the pyproject.toml file."
+        )
+        version_parser.add_argument("value", nargs="?", default="", type=str, help="Set the version to this value.")
+        version_parser.add_argument("--json", action="store_true", help='Input is JSON string, ex: "1.2.3rc1-dev3"')
+
+        set_parser = subparsers.add_parser(
+            "set", description="Set part of the current version in the pyproject.toml file " "to the given value."
+        )
+        set_parser.add_argument("part", choices=Version.PARTS, help="Set this part of the current version.")
+        set_parser.add_argument("value", nargs="?", default="", type=str, help="Set the version part to this value.")
+        set_parser.add_argument(
+            "--clear_right",
+            action="store_true",
+            help="Clear the parts of the current version to the right of the part.",
+        )
+        set_parser.add_argument("--json", action="store_true", help='Input is JSON dictionary, ex: "{"rc": "1"}"')
+
+        get_parser = subparsers.add_parser("get", description="Get the current version from the pyproject.toml file.")
+        get_parser.add_argument("--project", action="store_true", help="Get the project.version value.")
+        get_parser.add_argument("--poetry", action="store_true", help="Get the tool.poetry.version value.")
+        get_parser.add_argument(
+            "--all", action="store_true", help="Get both project.version and tool.poetry.version values. [Default]"
+        )
+        get_parser.add_argument("--json", action="store_true", help='Output as JSON string, ex: "1.2.3rc1-dev"')
+
+        release_parser = subparsers.add_parser(
+            "release", description="Change version to a release version, i.e. [N!]N[.N[.N]]"
+        )
+        release_parser.add_argument("--json", action="store_true", help='Output as JSON string, ex: "1.2.3"')
 
     def validate_arguments(self, settings: argparse.Namespace, remaining_argv: list[str]) -> list[str]:  # noqa: ARG002
         """This provides a hook for validating the settings after the parsing is completed.
@@ -114,35 +150,13 @@ class Settings(ApplicationSettings):
         :param remaining_argv: the remaining argv after the parsing is completed.
         :return: a list of error messages or an empty list
         """
-        result = []
-        # TODO: Remove example app validation: --count=N where: MIN_COUNT < N <= MAX_COUNT
-        if settings.count > MAX_COUNT:
-            result.append(f"--count ({settings.count}) > 10")
-        if settings.count < MIN_COUNT:
-            result.append(f"--count ({settings.count}) < {MIN_COUNT}")
-        return result
-
-
-# TODO: remove example application
-def __example_application(settings: argparse.Namespace) -> None:
-    """This is just an example application, replace with the real application.
-
-    :param settings: the settings object returned by ArgumentParser.parse_args()
-    """
-    with GracefulInterruptHandler() as handler:
-        logger.debug("Executing Example Application")
-        logger.info(f"Settings: {pformat(vars(settings), indent=2)}")
-
-        for iteration in range(settings.count):
-            sleep(1)
-            logger.info(".", end="", flush=True)
-            # to break out of loop when interrupt (^C) is pressed
-            if handler.interrupted:
-                logger.error(f"Loop Interrupted after {iteration} iterations")
-                break
-        logger.info("\n")
-
-        logger.debug("Example Application Complete")
+        errors: list[str] = []
+        # we want the default for the get command to get both project.version and tool.poetry.version.
+        # if a single argument is given (i.e., --project or --poetry), then we want to just get that version.
+        if settings.command == "get" and (not settings.project and not settings.poetry):
+            settings.project = True
+            settings.poetry = True
+        return errors
 
 
 def main(args: list[str] | None = None) -> int:
@@ -152,17 +166,23 @@ def main(args: list[str] | None = None) -> int:
         # after completion.  The quick_exit flag indicates if this is the case.
         if settings.quick_exit:
             return 0
-        # TODO: replace invoking the example application with your application's entry point
-        __example_application(settings)
+
+        commands = {
+            "set": set_command,
+            "get": get_command,
+            "bump": bump_command,
+            "release": release_command,
+            "version": version_command,
+        }
+
+        try:
+            logger.info(f"command: {settings.command!s}")
+            commands[settings.command](settings)
+        except ValueError as ex:
+            logger.error(ex)
+            return 1
     return 0
 
 
-def cleanup() -> None:  # pragma: no cover
-    """Cleans up the application just before exiting."""
-    # TODO: add any cleanup necessary.
-    logger.debug("Cleaning up")
-
-
 if __name__ == "__main__":  # pragma: no cover
-    atexit.register(cleanup)
     sys.exit(main(args=None))

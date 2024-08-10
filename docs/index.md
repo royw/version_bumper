@@ -13,24 +13,23 @@ SPDX-License-Identifier: MIT
 ## Table of Contents
 
 <!-- TOC -->
-* [Version Bumper](#Version Bumper)
-  * [Table of Contents](#table-of-contents)
-  * [Overview](#overview)
-  * [Getting Started](#getting-started)
-  * [Architecture](#architecture)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-  * [Workflows](#workflows)
-    * [Tasks](#tasks)
-    * [Switching between Poetry and Hatch](#switching-between-poetry-and-hatch)
-    * [Adding a dependency using poetry](#adding-a-dependency-using-poetry)
-    * [Adding a dependency using hatch](#adding-a-dependency-using-hatch)
-  * [License](#license)
-  * [References](#references)
-    * [Build tools](#build-tools)
-      * [FawltyDeps](#fawltydeps)
-    * [Documentation tools](#documentation-tools)
-<!-- TOC -->
+
+- [Version Bumper](#Version Bumper)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+  - [Architecture](#architecture)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Workflows](#workflows)
+    - [Tasks](#tasks)
+    - [Switching between Poetry and Hatch](#switching-between-poetry-and-hatch)
+    - [Adding a dependency using poetry](#adding-a-dependency-using-poetry)
+    - [Adding a dependency using hatch](#adding-a-dependency-using-hatch)
+  - [License](#license)
+  - [References](#references) _ [Build tools](#build-tools) _
+  [FawltyDeps](#fawltydeps) \* [Documentation tools](#documentation-tools)
+  <!-- TOC -->
 
 ## Overview
 
@@ -65,8 +64,8 @@ A couple of useful commands:
 The architecture used is a Settings context manager that handles all the command
 line and config file argument definition, parsing, and validation.
 
-The application's entry point is in `version_bumper/__main__.py`.
-In `__main.py__` there are several TODOs that you will need to visit and clear.
+The application's entry point is in `version_bumper/__main__.py`. In
+`__main.py__` there are several TODOs that you will need to visit and clear.
 
 The application may be run with any of the following:
 

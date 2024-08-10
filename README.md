@@ -13,24 +13,23 @@ SPDX-License-Identifier: MIT
 ## Table of Contents
 
 <!-- TOC -->
-* [Version Bumper](#Version Bumper)
-  * [Table of Contents](#table-of-contents)
-  * [Overview](#overview)
-  * [Getting Started](#getting-started)
-  * [Architecture](#architecture)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-  * [Workflows](#workflows)
-    * [Tasks](#tasks)
-    * [Switching between Poetry and Hatch](#switching-between-poetry-and-hatch)
-    * [Adding a dependency using poetry](#adding-a-dependency-using-poetry)
-    * [Adding a dependency using hatch](#adding-a-dependency-using-hatch)
-  * [License](#license)
-  * [References](#references)
-    * [Build tools](#build-tools)
-      * [FawltyDeps](#fawltydeps)
-    * [Documentation tools](#documentation-tools)
-<!-- TOC -->
+
+- [Version Bumper](#Version Bumper)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+  - [Architecture](#architecture)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Workflows](#workflows)
+    - [Tasks](#tasks)
+    - [Switching between Poetry and Hatch](#switching-between-poetry-and-hatch)
+    - [Adding a dependency using poetry](#adding-a-dependency-using-poetry)
+    - [Adding a dependency using hatch](#adding-a-dependency-using-hatch)
+  - [License](#license)
+  - [References](#references) _ [Build tools](#build-tools) _
+  [FawltyDeps](#fawltydeps) \* [Documentation tools](#documentation-tools)
+  <!-- TOC -->
 
 ## Overview
 
@@ -42,13 +41,18 @@ logging. [Poetry](https://python-poetry.org/) and
 
 ## Getting Started
 
-After creating the project with:
+Create the project with (if you want to be able to resync from the template):
+
+    cruft create https://github.com/royw/cookiecutter-clibones
+
+or
 
     cookiecutter https://github.com/royw/cookiecutter-clibones
 
-and answering the project questions, this framework was created. To use, you
-need to run:
+then answering the project questions. To use, you need to run:
 
+    cd program_slug         # from the cookiecutter questions
+    pyenv local 3.11 3.12   # or whatever python versions you need
     task init
     task build
 
@@ -56,7 +60,7 @@ The framework is now ready for all of your good stuff.
 
 A couple of useful commands:
 
-    task --list-all     # shows available tasks
+    task                # shows available tasks
     less Taskfile.yml   # shows the commands that form each task.  Feel free to customize.
     poetry lock         # for when the poetry.lock gets out of sync with pyproject.toml
 
@@ -65,8 +69,8 @@ A couple of useful commands:
 The architecture used is a Settings context manager that handles all the command
 line and config file argument definition, parsing, and validation.
 
-The application's entry point is in `version_bumper/__main__.py`.
-In `__main.py__` there are several TODOs that you will need to visit and clear.
+The application's entry point is in `version_bumper/__main__.py`. In
+`__main.py__` there are several TODOs that you will need to visit and clear.
 
 The application may be run with any of the following:
 

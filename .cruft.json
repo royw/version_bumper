@@ -1,0 +1,24 @@
+{
+  "template": "https://github.com/royw/cookiecutter-clibones",
+  "commit": "e6f975a8979bf6ea8c935972f8f30aeb785672d4",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Roy Wright",
+      "email": "roy@wright.org",
+      "github_username": "royw",
+      "project_name": "Version Bumper",
+      "project_slug": "version_bumper",
+      "project_short_description": "Python package version utility to bump a version by parts.",
+      "pypi_username": "royw",
+      "version": "0.1.0",
+      "open_source_license": "MIT license",
+      "reuse": "disabled",
+      "build_backend": "hatch",
+      "__gh_slug": "royw/version_bumper",
+      "_copy_without_render": ["Taskfile*.yaml", "taskfiles/*.yaml"],
+      "_template": "https://github.com/royw/cookiecutter-clibones"
+    }
+  },
+  "directory": null
+}
