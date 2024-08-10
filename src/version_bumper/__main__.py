@@ -93,16 +93,19 @@ class Settings(ApplicationSettings):
         """
         # use normal argparse commands to add arguments to the given parser.  Example:
 
+        def add_common_arguments(parser: argparse.ArgumentParser) -> None:
+            parser.add_argument(
+                "--pyproject",
+                dest="pyproject_toml_path",
+                default=pyproject_toml_path,
+                type=Path,
+                action="store",
+                help="pyproject.toml file update the version within.",
+            )
+
         pyproject_toml_path = Path(__file__).parent.parent.parent.joinpath("pyproject.toml").resolve()
 
         subparsers = parser.add_subparsers(dest="command")
-        parser.add_argument(
-            "pyproject_toml_path",
-            nargs="?",
-            default=pyproject_toml_path,
-            type=Path,
-            help="pyproject.toml file update the version within.",
-        )
 
         bump_parser = subparsers.add_parser(
             "bump", description="Bump the given part of the current version in the " "pyproject.toml file."
@@ -111,12 +114,16 @@ class Settings(ApplicationSettings):
         bump_parser.add_argument(
             "--json", action="store_true", help='Input is JSON string containing the part name to increment, ex: "dev"'
         )
+        bump_parser.add_argument("--text", action="store_true", help='Input is text string, ex: "1.2.3rc1-dev3"')
+        add_common_arguments(bump_parser)
 
         version_parser = subparsers.add_parser(
             "version", description="Set the current version in the pyproject.toml file."
         )
         version_parser.add_argument("value", nargs="?", default="", type=str, help="Set the version to this value.")
         version_parser.add_argument("--json", action="store_true", help='Input is JSON string, ex: "1.2.3rc1-dev3"')
+        version_parser.add_argument("--text", action="store_true", help='Input is text string, ex: "1.2.3rc1-dev3"')
+        add_common_arguments(version_parser)
 
         set_parser = subparsers.add_parser(
             "set", description="Set part of the current version in the pyproject.toml file " "to the given value."
@@ -129,6 +136,8 @@ class Settings(ApplicationSettings):
             help="Clear the parts of the current version to the right of the part.",
         )
         set_parser.add_argument("--json", action="store_true", help='Input is JSON dictionary, ex: "{"rc": "1"}"')
+        set_parser.add_argument("--text", action="store_true", help='Input is text, ex: "rc1"')
+        add_common_arguments(set_parser)
 
         get_parser = subparsers.add_parser("get", description="Get the current version from the pyproject.toml file.")
         get_parser.add_argument("--project", action="store_true", help="Get the project.version value.")
@@ -137,11 +146,15 @@ class Settings(ApplicationSettings):
             "--all", action="store_true", help="Get both project.version and tool.poetry.version values. [Default]"
         )
         get_parser.add_argument("--json", action="store_true", help='Output as JSON string, ex: "1.2.3rc1-dev"')
+        get_parser.add_argument("--text", action="store_true", help='Output as text string, ex: "1.2.3rc1-dev"')
+        add_common_arguments(get_parser)
 
         release_parser = subparsers.add_parser(
             "release", description="Change version to a release version, i.e. [N!]N[.N[.N]]"
         )
         release_parser.add_argument("--json", action="store_true", help='Output as JSON string, ex: "1.2.3"')
+        release_parser.add_argument("--text", action="store_true", help='Output as text string, ex: "1.2.3"')
+        add_common_arguments(release_parser)
 
     def validate_arguments(self, settings: argparse.Namespace, remaining_argv: list[str]) -> list[str]:  # noqa: ARG002
         """This provides a hook for validating the settings after the parsing is completed.
@@ -176,7 +189,6 @@ def main(args: list[str] | None = None) -> int:
         }
 
         try:
-            logger.info(f"command: {settings.command!s}")
             commands[settings.command](settings)
         except ValueError as ex:
             logger.error(ex)

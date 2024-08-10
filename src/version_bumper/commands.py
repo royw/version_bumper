@@ -123,6 +123,8 @@ def set_command(settings: argparse.Namespace) -> None:
 def output(settings: argparse.Namespace, versions: dict[str, str]) -> None:
     if settings.json:
         logger.info(json.dumps(versions))
+    elif settings.text:
+        logger.info("\n".join([str(versions[key]) for key in versions]))
     else:
         for key, value in versions.items():
             logger.info(f"{key}: {value}")

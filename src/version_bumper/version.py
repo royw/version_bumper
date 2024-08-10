@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import re
 from collections.abc import Sequence
-from typing import Self
+from typing import Any, Self
 
 """
 A comparable Version object that fully conforms to the PYPA version specification in:
@@ -183,8 +183,10 @@ class Version:
         if part == "local":
             self.local = str(int(self.local or 0) + 1)
 
-        # clear parts to the right of the bumped part
-        self.__clear_parts(Version.PARTS[Version.PARTS.index(part) + 1 :])
+        # clear parts to the right of the bumped part, except epoch
+        if part != "epoch":
+            part_index = Version.PARSED_PARTS.index(self.__part_to_parsed_part(part))
+            self.__clear_parts(Version.PARSED_PARTS[part_index + 1 :])
 
         return self
 
@@ -211,8 +213,17 @@ class Version:
             elif part in Version.INT_PARTS:
                 setattr(self, part, int(value))
             if clear_right:
-                self.__clear_parts(Version.PARSED_PARTS[Version.PARSED_PARTS.index(part) + 1 :])
+                parts_to_clear_slice = slice(Version.PARSED_PARTS.index(part) + 1, None)
+                self.__clear_parts(Version.PARSED_PARTS[parts_to_clear_slice])
         return self
+
+    @staticmethod
+    def __part_to_parsed_part(part: str) -> str:
+        if part in Version.PRE_PARTS:
+            part = "pre"
+        elif part in Version.POST_PARTS:
+            part = "post"
+        return part
 
     @staticmethod
     def __implicit_release(release: str) -> str:
@@ -374,6 +385,9 @@ class Version:
         return value
 
     def __clear_parts(self, parts: Sequence[str]) -> None:
+        if not contains(parts, Version.PARSED_PARTS):
+            msg = f"Requires parsed parts ({Version.PARSED_PARTS}), given: {parts}"
+            raise ValueError(msg)
         for part in parts:
             # do not clear major
             if part in ["epoch", "minor", "patch"]:
@@ -381,3 +395,13 @@ class Version:
                     setattr(self, part, 0)
             elif part != "major":
                 setattr(self, part, "")
+
+
+def contains(small: Sequence[Any], big: Sequence[Any]) -> bool | tuple[int, int]:
+    for i in range(len(big) - len(small) + 1):
+        for j in range(len(small)):
+            if big[i + j] != small[j]:
+                break
+        else:
+            return i, i + len(small)
+    return False
