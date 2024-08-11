@@ -108,13 +108,19 @@ class Version:
         self.epoch: int = int(match.group("epoch") or 0)
         self.release: str = match.group("release")
         release_parts: Sequence[int] = tuple(map(int, self.release.split(".")))
-        self.major: int = release_parts[0] if len(release_parts) >= 1 else 0
-        self.minor: int | None = release_parts[1] if len(release_parts) >= 2 else None
-        self.patch: int | None = release_parts[2] if len(release_parts) >= 3 else None
-        self.pre: str = self.__pre_normalize(match.group("pre") or "")
-        self.post: str = self.__post_normalize(match.group("post") or "")
-        self.dev: str = self.__dev_normalize(match.group("dev") or "")
-        self.local: str = self.__local_normalize(match.group("local") or "")
+        self.major: int = (
+            self.__release_normalize(release_parts=release_parts, index=0, length=1, default_value=0) or 0
+        )
+        self.minor: int | None = self.__release_normalize(
+            release_parts=release_parts, index=1, length=2, default_value=None
+        )
+        self.patch: int | None = self.__release_normalize(
+            release_parts=release_parts, index=2, length=3, default_value=None
+        )
+        self.pre: str = self.__pre_normalize(match.group("pre"))
+        self.post: str = self.__post_normalize(match.group("post"))
+        self.dev: str = self.__dev_normalize(match.group("dev"))
+        self.local: str = self.__local_normalize(match.group("local"))
 
     def __str__(self) -> str:
         """
@@ -180,8 +186,7 @@ class Version:
         self.pre = self.__bump_part(part=part, prefix="rc", value=self.pre)
         self.post = self.__bump_part(part=part, prefix=".post", value=self.post)
         self.dev = self.__bump_part(part=part, prefix=".dev", value=self.dev)
-        if part == "local":
-            self.local = str(int(self.local or 0) + 1)
+        self.local = self.__bump_local(part=part, value=self.local)
 
         # clear parts to the right of the bumped part, except epoch
         if part != "epoch":
@@ -209,7 +214,7 @@ class Version:
             elif part == "local":
                 setattr(self, part, self.__local_normalize(value))
             elif part == "dev":
-                setattr(self, part, f"dev{int(value)}")
+                setattr(self, part, self.__dev_normalize(value))
             elif part in Version.INT_PARTS:
                 setattr(self, part, int(value))
             if clear_right:
@@ -243,6 +248,20 @@ class Version:
         return release
 
     @staticmethod
+    def __prefix_normalize(release: str, prefix: str) -> str:
+        if not release:
+            release = f"{prefix}0"
+        if all(characters.isdigit() for characters in release):
+            release = f"{prefix}{release}"
+        return release
+
+    @staticmethod
+    def __release_normalize(
+        release_parts: Sequence[int], index: int, length: int, default_value: int | None
+    ) -> int | None:
+        return release_parts[index] if len(release_parts) >= length else default_value
+
+    @staticmethod
     def __pre_normalize(release: str) -> str:
         """
         Pre-release separators
@@ -262,6 +281,7 @@ class Version:
         Pre releases allow omitting the numeral in which case it is implicitly assumed to be 0. The normal
         form for this is to include the 0 explicitly. This allows versions such as 1.2a which is normalized to 1.2a0.
         """
+        release = release or ""
         if release:
             release = release.replace(".", "")
             release = release.replace("-", "")
@@ -271,10 +291,7 @@ class Version:
             release = release.replace("c", "rc") if release.startswith("c") else release
             release = release.replace("preview", "rc")
             release = release.replace("pre", "rc")
-            if not release:
-                release = "pre0"
-            if all(characters.isdigit() for characters in release):
-                release = f"pre{release}"
+            release = Version.__prefix_normalize(release=release, prefix="pre")
             release = Version.__implicit_release(release)
         return release
 
@@ -298,6 +315,7 @@ class Version:
         normal form for this is to include the 0 explicitly. This allows versions such as 1.2.post
         which is normalized to 1.2.post0.
         """
+        release = release or ""
         if release:
             if re.match(r"^[.\-_]", release):
                 release = release[1:]
@@ -306,10 +324,7 @@ class Version:
             release = release.replace("_", "")
             release = release.replace("rev", "post")
             release = release.replace("r", "post")
-            if not release:
-                release = "post0"
-            if all(characters.isdigit() for characters in release):
-                release = f"post{release}"
+            release = Version.__prefix_normalize(release=release, prefix="post")
             release = Version.__implicit_release(release)
             release = f".{release}"
         return release
@@ -327,16 +342,14 @@ class Version:
         The normal form for this is to include the 0 explicitly. This allows versions such as 1.2.dev
         which is normalized to 1.2.dev0.
         """
+        release = release or ""
         if release:
             if re.match(r"^[.\-_]", release):
                 release = release[1:]
             release = release.replace(".", "")
             release = release.replace("-", "")
             release = release.replace("_", "")
-            if not release:
-                release = "dev0"
-            if all(characters.isdigit() for characters in release):
-                release = f"dev{release}"
+            release = Version.__prefix_normalize(release=release, prefix="dev")
             release = Version.__implicit_release(release)
             release = f".{release}"
         return release
@@ -349,6 +362,7 @@ class Version:
         also acceptable. The normal form is using the . character. This allows versions such as
         1.0+ubuntu-1 to be normalized to 1.0+ubuntu.1.
         """
+        release = release or ""
         if release:
             release = release.replace("-", ".")
             release = release.replace("_", ".")
@@ -384,6 +398,13 @@ class Version:
             value = (value or 0) + 1
         return value
 
+    @staticmethod
+    def __bump_local(part: str, value: str) -> str:
+        if part == "local":
+            match = re.match(r"(.*)(\d+)$", value)
+            value = f"{value}1" if match is None else f"{match.group(1)}{int(match.group(2)) + 1}"
+        return value
+
     def __clear_parts(self, parts: Sequence[str]) -> None:
         if not contains(parts, Version.PARSED_PARTS):
             msg = f"Requires parsed parts ({Version.PARSED_PARTS}), given: {parts}"
@@ -391,6 +412,7 @@ class Version:
         for part in parts:
             # do not clear major
             if part in ["epoch", "minor", "patch"]:
+                # do not clear if part is unused in the version
                 if isinstance(getattr(self, part), int):
                     setattr(self, part, 0)
             elif part != "major":

@@ -123,6 +123,7 @@ class Settings(ApplicationSettings):
         version_parser.add_argument("value", nargs="?", default="", type=str, help="Set the version to this value.")
         version_parser.add_argument("--json", action="store_true", help='Input is JSON string, ex: "1.2.3rc1-dev3"')
         version_parser.add_argument("--text", action="store_true", help='Input is text string, ex: "1.2.3rc1-dev3"')
+        version_parser.add_argument("--silent", action="store_true", help="Silence output (used for tests)")
         add_common_arguments(version_parser)
 
         set_parser = subparsers.add_parser(
@@ -169,6 +170,7 @@ class Settings(ApplicationSettings):
         if settings.command == "get" and (not settings.project and not settings.poetry):
             settings.project = True
             settings.poetry = True
+
         return errors
 
 

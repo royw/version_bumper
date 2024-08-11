@@ -15,22 +15,26 @@ from version_bumper.version import Version
 
 
 def version_command(settings: argparse.Namespace) -> None:
-    save_version(pyproject_toml_path=settings.pyproject_toml_path, version=settings.value)
-    output(settings, {"version": str(settings.value)})
+    save_version(pyproject_toml_path=settings.pyproject_toml_path, version=Version(settings.value))
+    if not settings.silent:
+        output(settings, {"version": str(settings.value)})
 
 
 def get_command(settings: argparse.Namespace) -> None:
     versions: dict[str, str] = {}
+    keys: list[str] = []
+
+    keys.append("project.version") if settings.project else None
+    keys.append("tool.poetry.version") if settings.poetry else None
+
+    version_list: list[Version] = PyProject.load_version(
+        pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation_list=keys
+    )
     if settings.project:
-        version = PyProject.load_version(
-            pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation="project.version"
-        )
-        versions["project.version"] = str(version)
+        versions["project.version"] = str(version_list.pop(0))
+
     if settings.poetry:
-        version = PyProject.load_version(
-            pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation="tool.poetry.version"
-        )
-        versions["tool.poetry.version"] = str(version)
+        versions["tool.poetry.version"] = str(version_list.pop(0))
     output(settings, versions)
 
 
@@ -49,33 +53,28 @@ def __sanity_check_loaded_versions(project_version: Version | None, poetry_versi
 
 
 def save_version(pyproject_toml_path: Path, version: Version) -> None:
-    # always save to project.version
-    PyProject.save_version(
-        pyproject_toml_path=pyproject_toml_path, key_dot_notation="project.version", version=version
-    )
-
     # if tool.poetry.version exists, then overwrite it
-    poetry_version = PyProject.load_version(
-        pyproject_toml_path=pyproject_toml_path, key_dot_notation="tool.poetry.version"
+    versions: list[Version] = PyProject.load_version(
+        pyproject_toml_path=pyproject_toml_path, key_dot_notation_list=["tool.poetry.version"]
     )
 
-    if poetry_version:
+    keys = ["project.version"]
+    if versions:
         # only update tool.poetry.version, i.e. DO NOT CREATE
-        PyProject.save_version(
-            pyproject_toml_path=pyproject_toml_path, key_dot_notation="tool.poetry.version", version=version
-        )
+        keys.append("tool.poetry.version")
+
+    # always save to project.version
+    PyProject.save_version(pyproject_toml_path=pyproject_toml_path, key_dot_notation_list=keys, version=version)
 
 
 def __load_version(settings: argparse.Namespace) -> Version | None:
     # try to load both project.version and tool.poetry.version
-    project_version = PyProject.load_version(
-        pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation="project.version"
-    )
-    poetry_version = PyProject.load_version(
-        pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation="tool.poetry.version"
+    versions: list[Version] = PyProject.load_version(
+        pyproject_toml_path=settings.pyproject_toml_path,
+        key_dot_notation_list=["project.version", "tool.poetry.version"],
     )
     # sanity check what we loaded
-    return __sanity_check_loaded_versions(project_version, poetry_version)
+    return __sanity_check_loaded_versions(versions[0], versions[1])
 
 
 def bump_command(settings: argparse.Namespace) -> None:

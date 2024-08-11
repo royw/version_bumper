@@ -473,6 +473,7 @@ branch = true
 parallel = true
 omit = [
   "src/version_bumper/__init__.py",
+  "src/version_bumper/clibones/*"
 ]
 
 [tool.coverage.paths]

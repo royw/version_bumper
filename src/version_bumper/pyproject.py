@@ -16,25 +16,26 @@ from version_bumper.version import Version
 
 class PyProject:
     @classmethod
-    def load_version(cls, pyproject_toml_path: Path, key_dot_notation: str) -> Version | None:
+    def load_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str]) -> list[Version]:
+        versions: list[Version] = []
         with pyproject_toml_path.open(encoding="utf-8") as f:
             doc: TOMLDocument = tomlkit.load(f)
-            field: Any = doc
-            try:
+            for key_dot_notation in key_dot_notation_list:
+                field: Any = doc
                 for key in key_dot_notation.split("."):
                     field = field.get(key)
-                return Version(field)
-            except AttributeError:
-                return None
+                versions.append(Version(field))
+        return versions
 
     @classmethod
-    def save_version(cls, pyproject_toml_path: Path, key_dot_notation: str, version: Version) -> None:
+    def save_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str], version: Version) -> None:
         with pyproject_toml_path.open(encoding="utf-8") as f:
             doc: TOMLDocument = tomlkit.load(f)
-            field: Any = doc
-            for key in key_dot_notation.split(".")[:-1]:
-                field = field.get(key)
-            field.update({"version": str(version)})
+            for key_dot_notation in key_dot_notation_list:
+                field: Any = doc
+                for key in key_dot_notation.split(".")[:-1]:
+                    field = field.get(key)
+                field.update({"version": str(version)})
 
         # write to temporary file then atomically "switch" it with the original using rename.
         with tempfile.NamedTemporaryFile("wt", dir=pyproject_toml_path.parent, delete=False) as tf:
