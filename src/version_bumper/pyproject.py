@@ -17,6 +17,9 @@ from version_bumper.version import Version
 class PyProject:
     @classmethod
     def load_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str]) -> list[Version]:
+        """
+        Load the versions specified by a list of dotted keys from the pyproject.toml file.
+        """
         versions: list[Version] = []
         with pyproject_toml_path.open(encoding="utf-8") as f:
             doc: TOMLDocument = tomlkit.load(f)
@@ -29,6 +32,9 @@ class PyProject:
 
     @classmethod
     def save_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str], version: Version) -> None:
+        """
+        Save the version to each of the dotted keys in the given list to the pyproject.toml file.
+        """
         with pyproject_toml_path.open(encoding="utf-8") as f:
             doc: TOMLDocument = tomlkit.load(f)
             for key_dot_notation in key_dot_notation_list:

@@ -35,6 +35,7 @@ Usage example:
 
 @functools.total_ordering
 class Version:
+    # Constants
     PARTS: Sequence[str] = ("epoch", "major", "minor", "patch", "a", "b", "rc", "post", "dev", "local")
     PARSED_PARTS: Sequence[str] = ("epoch", "major", "minor", "patch", "pre", "post", "dev", "local")
     PRE_PARTS: Sequence[str] = ("a", "b", "c", "rc", "alpha", "beta", "pre", "preview")
@@ -109,18 +110,18 @@ class Version:
         self.release: str = match.group("release")
         release_parts: Sequence[int] = tuple(map(int, self.release.split(".")))
         self.major: int = (
-            self.__release_normalize(release_parts=release_parts, index=0, length=1, default_value=0) or 0
+            Version.__release_normalize(release_parts=release_parts, index=0, length=1, default_value=0) or 0
         )
-        self.minor: int | None = self.__release_normalize(
+        self.minor: int | None = Version.__release_normalize(
             release_parts=release_parts, index=1, length=2, default_value=None
         )
-        self.patch: int | None = self.__release_normalize(
+        self.patch: int | None = Version.__release_normalize(
             release_parts=release_parts, index=2, length=3, default_value=None
         )
-        self.pre: str = self.__pre_normalize(match.group("pre"))
-        self.post: str = self.__post_normalize(match.group("post"))
-        self.dev: str = self.__dev_normalize(match.group("dev"))
-        self.local: str = self.__local_normalize(match.group("local"))
+        self.pre: str = Version.__pre_normalize(match.group("pre"))
+        self.post: str = Version.__post_normalize(match.group("post"))
+        self.dev: str = Version.__dev_normalize(match.group("dev"))
+        self.local: str = Version.__local_normalize(match.group("local"))
 
     def __str__(self) -> str:
         """
@@ -149,9 +150,9 @@ class Version:
             return True
         if self.major < other.major:
             return True
-        if self.__is_optional_value_less_than(self.minor, other.minor):
+        if Version.__is_optional_value_less_than(self.minor, other.minor):
             return True
-        if self.__is_optional_value_less_than(self.patch, other.patch):
+        if Version.__is_optional_value_less_than(self.patch, other.patch):
             return True
         if self.pre < other.pre:
             return True
@@ -162,6 +163,7 @@ class Version:
         return self.local < other.local
 
     def __eq__(self, other: object) -> bool:
+        """test if self is equal to other"""
         return str(self) == str(other)
 
     def bump(self, part: str) -> Self:
@@ -169,52 +171,57 @@ class Version:
         Valid part values are in PARTS sequence.
         Bump the part if part is not None.
         Set the value to new_version if it is not None.
-        return False if unable to modify.
+        return the Version instance.
         """
         if part not in Version.PARTS:
             msg = f"Invalid part value: {part}"
             raise ValueError(msg)
 
-        self.epoch = self.__bump_int_part(part=part, prefix="epoch", value=self.epoch)
-        self.major = self.__bump_int_part(part=part, prefix="major", value=self.major)
-        self.minor = self.__bump_optional_int_part(part=part, prefix="minor", value=self.minor)
+        self.epoch = Version.__bump_int_part(part=part, prefix="epoch", value=self.epoch) or 0
+        self.major = Version.__bump_int_part(part=part, prefix="major", value=self.major) or 0
+        self.minor = Version.__bump_int_part(part=part, prefix="minor", value=self.minor)
         if part == "patch":
             self.minor = int(self.minor or 0)
-        self.patch = self.__bump_optional_int_part(part=part, prefix="patch", value=self.patch)
-        self.pre = self.__bump_part(part=part, prefix="a", value=self.pre)
-        self.pre = self.__bump_part(part=part, prefix="b", value=self.pre)
-        self.pre = self.__bump_part(part=part, prefix="rc", value=self.pre)
-        self.post = self.__bump_part(part=part, prefix=".post", value=self.post)
-        self.dev = self.__bump_part(part=part, prefix=".dev", value=self.dev)
-        self.local = self.__bump_local(part=part, value=self.local)
+        self.patch = Version.__bump_int_part(part=part, prefix="patch", value=self.patch)
+        self.pre = Version.__bump_part(part=part, prefix="a", value=self.pre)
+        self.pre = Version.__bump_part(part=part, prefix="b", value=self.pre)
+        self.pre = Version.__bump_part(part=part, prefix="rc", value=self.pre)
+        self.post = Version.__bump_part(part=part, prefix=".post", value=self.post)
+        self.dev = Version.__bump_part(part=part, prefix=".dev", value=self.dev)
+        self.local = Version.__bump_local(part=part, value=self.local)
 
         # clear parts to the right of the bumped part, except epoch
         if part != "epoch":
-            part_index = Version.PARSED_PARTS.index(self.__part_to_parsed_part(part))
+            part_index = Version.PARSED_PARTS.index(Version.__part_to_parsed_part(part))
             self.__clear_parts(Version.PARSED_PARTS[part_index + 1 :])
 
         return self
 
     def bump_release(self) -> Self:
         """
-        Remove any pre, dev, local parts.  Basically prepare the release version.
+        Remove any pre, post, dev, or local parts.  Basically prepare the release version.
+        returns the Version instance.
         """
         self.__clear_parts(["pre", "post", "dev", "local"])
         return self
 
     def set(self, part: str, value: str, clear_right: bool = False) -> Self:
+        """
+        Normalize the value then replace the part's value with it.
+        returns the Version instance.
+        """
         if part and part in Version.PARTS:
             if part in Version.PRE_PARTS:
                 value = f"{part}{value}"
                 part = "pre"
-                setattr(self, part, self.__pre_normalize(value))
+                setattr(self, part, Version.__pre_normalize(value))
             elif part in Version.POST_PARTS:
                 part = "post"
-                setattr(self, part, self.__post_normalize(value))
+                setattr(self, part, Version.__post_normalize(value))
             elif part == "local":
-                setattr(self, part, self.__local_normalize(value))
+                setattr(self, part, Version.__local_normalize(value))
             elif part == "dev":
-                setattr(self, part, self.__dev_normalize(value))
+                setattr(self, part, Version.__dev_normalize(value))
             elif part in Version.INT_PARTS:
                 setattr(self, part, int(value))
             if clear_right:
@@ -222,8 +229,17 @@ class Version:
                 self.__clear_parts(Version.PARSED_PARTS[parts_to_clear_slice])
         return self
 
+    # The following static methods are just basically functions scoped within the class
+    # Having them as static methods allows private naming convention instead of protected.
+    # Also, I use the convention of Classname.__methodname instead of the allowable
+    # self.__methodname to visually indicate a static method.
+
     @staticmethod
     def __part_to_parsed_part(part: str) -> str:
+        """
+        The pre and post parts have aliases (a, b, rc, alpha,...).  If the given part is an
+        alias, replace it with the base part (pre or post).
+        """
         if part in Version.PRE_PARTS:
             part = "pre"
         elif part in Version.POST_PARTS:
@@ -249,6 +265,11 @@ class Version:
 
     @staticmethod
     def __prefix_normalize(release: str, prefix: str) -> str:
+        """
+        Prefix (pre, post, and dev) parts need to be of the form "{prefix}N".
+        So when release is "", make it "{prefix}0".
+        When release is N, make it "{prefix}N".
+        """
         if not release:
             release = f"{prefix}0"
         if all(characters.isdigit() for characters in release):
@@ -259,6 +280,9 @@ class Version:
     def __release_normalize(
         release_parts: Sequence[int], index: int, length: int, default_value: int | None
     ) -> int | None:
+        """
+        Release (major, minor, patch) parts are integers with the minor and patch parts being optional.
+        """
         return release_parts[index] if len(release_parts) >= length else default_value
 
     @staticmethod
@@ -370,6 +394,11 @@ class Version:
 
     @staticmethod
     def __is_optional_value_less_than(value1: int | None, value2: int | None) -> bool:
+        """
+        Integer compare for less than where any value may be None.
+        None is considered less than any integer.
+        Both values None are considered not less than.
+        """
         if value1 is None and value2 is None:
             return False
         if value1 is None:
@@ -380,6 +409,10 @@ class Version:
 
     @staticmethod
     def __bump_part(part: str, prefix: str, value: str) -> str:
+        """
+        Increment the part version for prefixed parts (ex: "dev" -> "dev0", ".devN" -> ".devN+1").
+        For parts without a numerical value, set the numeric value to "0" (ex: "dev" -> "dev0")
+        """
         if part and prefix and (prefix in {part, f".{part}"}):
             if value.startswith(prefix):
                 return f"{prefix}{int(value[len(prefix):]) + 1}"
@@ -387,25 +420,32 @@ class Version:
         return value
 
     @staticmethod
-    def __bump_int_part(part: str, prefix: str, value: int) -> int:
-        if part and prefix and part == prefix:
-            value = (value or 0) + 1
-        return value
-
-    @staticmethod
-    def __bump_optional_int_part(part: str, prefix: str, value: int | None) -> int | None:
+    def __bump_int_part(part: str, prefix: str, value: int | None) -> int | None:
+        """
+        Increment integer parts.
+        """
         if part and prefix and part == prefix:
             value = (value or 0) + 1
         return value
 
     @staticmethod
     def __bump_local(part: str, value: str) -> str:
+        """
+        Increment trailing integer of the local part.
+        If the local part does not have a trailing integer, set it to "1".
+        """
         if part == "local":
             match = re.match(r"(.*)(\d+)$", value)
             value = f"{value}1" if match is None else f"{match.group(1)}{int(match.group(2)) + 1}"
         return value
 
     def __clear_parts(self, parts: Sequence[str]) -> None:
+        """
+        Clear parts in the given sequence.
+        Parts must be in Version.PARSED_PARTS, raise ValueError if not.
+        Do not clear "major" part.
+        The clear value is "0" for integer parts and "" for non-integer parts.
+        """
         if not contains(parts, Version.PARSED_PARTS):
             msg = f"Requires parsed parts ({Version.PARSED_PARTS}), given: {parts}"
             raise ValueError(msg)
@@ -420,6 +460,11 @@ class Version:
 
 
 def contains(small: Sequence[Any], big: Sequence[Any]) -> bool | tuple[int, int]:
+    """
+    Test if a small sequence is contained in a big sequence.
+    From:
+    https://stackoverflow.com/questions/3847386/how-to-test-if-a-list-contains-another-list-as-a-contiguous-subsequence
+    """
     for i in range(len(big) - len(small) + 1):
         for j in range(len(small)):
             if big[i + j] != small[j]:

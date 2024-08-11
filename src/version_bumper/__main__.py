@@ -94,6 +94,9 @@ class Settings(ApplicationSettings):
         # use normal argparse commands to add arguments to the given parser.  Example:
 
         def add_common_arguments(parser: argparse.ArgumentParser) -> None:
+            """
+            Add these arguments to the given parser.
+            """
             parser.add_argument(
                 "--pyproject",
                 dest="pyproject_toml_path",
