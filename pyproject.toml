@@ -9,8 +9,8 @@
 # Run "task switch-to-poetry" or "task switch-to-setuptools" to change as
 # taskfiles/front-end*.yaml symbolic links need to be kept in sync with
 # these values.
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
 # TOML type: string
@@ -141,14 +141,11 @@ dev = [
   "mypy<2.0.0,>=1.10.1",
   "pip-tools<8.0.0,>=7.4.1",
   "pre-commit<4.0.0,>=3.7.1",
-  "pytest>=8.2.2,<9.0.0",
-  "pytest-cov>=5.0.0,<6.0.0",
   "pyupgrade<4.0.0,>=3.16.0",
   "reuse<4.0.0,>=3.0.2",
   "ruff>=0.4.7,<0.5.0",
   "shellcheck-py<0.11.0,>=0.10.0.1",
   "toml-cli<0.8.0,>=0.7.0",
-  "tox<5.0.0,>=4.14.2",
   "validate-pyproject>=0.18.0,<0.19.0",
   "check-pyproject@git+https://github.com/royw/check_pyproject.git",
 ]
@@ -156,6 +153,7 @@ test = [
   "coverage[toml]<8.0.0,>=7.5.4",
   "pytest>=8.2.2, <9.0.0",
   "pytest-cov<6.0.0,>=5.0.0",
+  "tox<5.0.0,>=4.14.2",
 ]
 docs = [
   "mkdocs<2.0.0,>=1.6.0",
@@ -594,7 +592,7 @@ include = [
 # Poetry is configured to look for dependencies on PyPI by default. Only the name and a version string are
 # required in this case.
 # more: https://python-poetry.org/docs/pyproject/#dependencies-and-dependency-groups
-[tool.poetry.dependencies]
+[tool.poetry.dependencies]    # main dependency group
 loguru = "^0.7.2"
 pathvalidate = "^3.2.0"
 python = "^3.11"
@@ -609,14 +607,11 @@ flict = "^1.2.14"
 liccheck = "^0.9.2"
 mypy = "^1.10.1"
 pre-commit = "^3.7.1"
-pytest = "^8.2.2"
-pytest-cov = "^5.0.0"
 pyupgrade = "^3.16.0"
 reuse = "^3.0.2"
 ruff = "^0.4.7"
 shellcheck-py = "^0.10.0.1"
 toml-cli = "^0.7.0"
-tox = "^4.14.2"
 validate-pyproject = "^0.18"
 httpx = "^0.27.0"
 pip-tools = "^7.4.1"
@@ -626,6 +621,7 @@ check-pyproject = {git = "https://github.com/royw/check_pyproject.git"}
 coverage = {extras = ["toml"], version = "^7.5.4"}
 pytest = "^8.2.2"
 pytest-cov = "^5.0.0"
+tox = "^4.14.2"
 
 [tool.poetry.group.metrics.dependencies]
 radon = "^6.0.1"
@@ -642,61 +638,15 @@ mkdocs-material = "^9.5.25"
 mkdocs-section-index = "^0.3.9"
 mkdocstrings = "^0.25.1"
 
+[tool.poetry.group.sphinx]
+optional = true
+
 [tool.poetry.group.sphinx.dependencies]
 furo = "^2024.5.6"
 myst-parser = "^3.0.1"
 sphinx = "^7.3.7"
 sphinx-copybutton = "^0.5.2"
 sphinx-autodoc-typehints = "^2.1.1"
-
-[tool.poetry.extras]
-dev = [
-  "blacken-docs",
-  "build",
-  "fawltydeps",
-  "flict",
-  "liccheck",
-  "mypy",
-  "pre-commit",
-  "pytest",
-  "pytest-cov",
-  "pyupgrade",
-  "reuse",
-  "ruff",
-  "shellcheck-py",
-  "toml-cli",
-  "tomlkit",
-  "tox",
-  "validate-pyproject",
-  "httpx",
-  "pip-tools",
-  "check-pyproject"
-]
-test = [
-  "coverage",
-  "pytest",
-  "pytest-cov",
-  "tomlkit"
-]
-metrics = [
-  "radon"
-]
-docs = [
-  "mkdocs",
-  "mkdocstrings-python",
-  "mkdocs-gen-files",
-  "mkdocs-literate-nav",
-  "mkdocs-material",
-  "mkdocs-section-index",
-  "mkdocstrings"
-]
-sphinx = [
-  "furo",
-  "myst-parser",
-  "sphinx",
-  "sphinx-copybutton",
-  "sphinx-autodoc-typehints"
-]
 
 [tool.poetry.scripts]
 main = "version_bumper.__main__:main"
