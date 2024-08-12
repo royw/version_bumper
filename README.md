@@ -33,11 +33,24 @@ SPDX-License-Identifier: MIT
 
 ## Overview
 
-This application used
-[cookiecutter-clibones](https://github.com/royw/cookiecutter-clibones), a CLI
-application framework based on the argparse standard library with loguru
-logging. [Poetry](https://python-poetry.org/) and
-[taskfile](https://taskfile.dev/) are used for project management.
+Oh no! Not another version bump utility!
+
+`version_bumper` fully complies with the version definition in the Python
+Packaging Authority's (PyPA) (https://www.pypa.io/) Python Packaging User Guide
+[Version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers)
+to manage both `project.version` and `tool.poetry.version` key/value pairs of
+the project's
+[pyproject.toml](https://packaging.python.org/en/latest/specifications/pyproject-toml/#pyproject-toml-spec)
+file. Further `version_bumper` lets you set or bump individual parts of the
+version as well as setting or getting the full version. Finally the input and
+outputs may be specified in json, text, or human readable console.
+
+A full suite of test cases server as both examples and validation.
+
+## Development Environment
+
+See the [Developer README](DEV-README.md) for information on the development
+environment.
 
 ## Getting Started
 
