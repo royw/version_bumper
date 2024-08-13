@@ -325,6 +325,76 @@ def test_set_local(capsys: CaptureFixture[Any], starting_version: str) -> None: 
     assert captured.err == "version: 0.1.1a2.post1.dev2+ubuntu.1\n"
 
 
+def test_set_clear_right_epoch(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "epoch", "2", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 2!0.0.0\n"
+
+
+def test_set_clear_right_major(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "major", "2", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 2.0.0\n"
+
+
+def test_set_clear_right_minor(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "minor", "2", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.2.0\n"
+
+
+def test_set_clear_right_patch(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "patch", "2", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.2\n"
+
+
+def test_set_clear_right_a(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "a", "4", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1a4\n"
+
+
+def test_set_clear_right_b(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "b", "4", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1b4\n"
+
+
+def test_set_clear_right_rc(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "rc", "4", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1rc4\n"
+
+
+def test_set_clear_right_post(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "post", "4", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1a2.post4\n"
+
+
+def test_set_clear_right_dev(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "dev", "4", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1a2.post1.dev4\n"
+
+
+def test_set_clear_right_local(capsys: CaptureFixture[Any], starting_version: str) -> None:  # noqa: ARG001
+    capsys.readouterr()  # clear captured output from starting_version fixture
+    assert main(["set", "local", "ubuntu-1", "--clear-right", "--pyproject", str(good_pyproject_toml_path)]) == 0
+    captured = capsys.readouterr()
+    assert captured.err == "version: 0.1.1a2.post1.dev2+ubuntu.1\n"
+
+
 # command: version
 
 

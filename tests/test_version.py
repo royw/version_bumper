@@ -107,6 +107,9 @@ def test_set() -> None:
     assert str(Version("1.2").set(part="major", value="2")) == "2.2"
 
     assert str(Version("1.2").set(part="local", value="foo0100")) == "1.2+foo0100"
+    assert str(Version("1.2").set(part="dev", value="dev")) == "1.2.dev0"
+    assert str(Version("1.2").set(part="dev", value="")) == "1.2"  # setting to empty string clears part value
+    assert str(Version("1.2").set(part="rc", value="")) == "1.2rc0"
 
 
 def test_normalizations() -> None:
@@ -201,7 +204,6 @@ def test_local() -> None:
 
 
 def test_major_minor() -> None:
-    version_value = 0.1
     for version_value in range(1, 12):
         version_str = f"0.{version_value}"
         assert str(Version(version_str)) == version_str
@@ -272,3 +274,57 @@ def test_possible_combinations() -> None:
 def test_invalid_version() -> None:
     with pytest.raises(ValueError, match="Invalid version string"):
         assert str(Version("1.2.3.")) == "1.2.3"
+
+
+def test_invalid_part_bump() -> None:
+    version = Version("1.2.3")
+    assert str(version.bump(part="minor")) == "1.3.0"
+    with pytest.raises(ValueError, match="Invalid part value"):
+        version.bump(part="foobar")
+
+
+def test_none_less_than_none() -> None:
+    # force error conditions
+
+    # both minors are None
+    ver1 = Version("1")
+    ver2 = Version("1")
+    ver1.minor = None
+    ver2.minor = None
+    assert not ver1 < ver2
+    assert ver1 == ver2
+
+    # int is not less than None
+    ver1 = Version("1")
+    ver2 = Version("1")
+    ver1.minor = 0
+    ver2.minor = None
+    assert not ver1 < ver2
+    assert ver1 != ver2
+
+    ver1 = Version("1")
+    ver2 = Version("1")
+    ver1.minor = 1
+    ver2.minor = None
+    assert not ver1 < ver2
+    assert ver1 != ver2
+
+    # None is less than int
+    ver1 = Version("1")
+    ver2 = Version("1")
+    ver1.minor = None
+    ver2.minor = 0
+    assert ver1 < ver2
+    assert ver1 != ver2
+
+    ver1 = Version("1")
+    ver2 = Version("1")
+    ver1.minor = None
+    ver2.minor = 1
+    assert ver1 < ver2
+
+
+def test_set_invalid_part() -> None:
+    ver = Version("1.2.3")
+    ver.set(part="foo", value="4")  # can't set unsupported part
+    assert str(ver) == "1.2.3"

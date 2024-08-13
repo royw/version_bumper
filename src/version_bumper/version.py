@@ -7,7 +7,7 @@ from __future__ import annotations
 import functools
 import re
 from collections.abc import Sequence
-from typing import Any, Self
+from typing import Self
 
 """
 A comparable Version object that fully conforms to the PYPA version specification in:
@@ -210,7 +210,7 @@ class Version:
         Normalize the value then replace the part's value with it.
         returns the Version instance.
         """
-        if part and part in Version.PARTS:
+        if part in Version.PARTS:
             if part in Version.PRE_PARTS:
                 value = f"{part}{value}"
                 part = "pre"
@@ -222,7 +222,7 @@ class Version:
                 setattr(self, part, Version.__local_normalize(value))
             elif part == "dev":
                 setattr(self, part, Version.__dev_normalize(value))
-            elif part in Version.INT_PARTS:
+            else:  # all that's left are the integer parts: epoch, major, minor, and patch
                 setattr(self, part, int(value))
             if clear_right:
                 parts_to_clear_slice = slice(Version.PARSED_PARTS.index(part) + 1, None)
@@ -267,11 +267,8 @@ class Version:
     def __prefix_normalize(release: str, prefix: str) -> str:
         """
         Prefix (pre, post, and dev) parts need to be of the form "{prefix}N".
-        So when release is "", make it "{prefix}0".
         When release is N, make it "{prefix}N".
         """
-        if not release:
-            release = f"{prefix}0"
         if all(characters.isdigit() for characters in release):
             release = f"{prefix}{release}"
         return release
@@ -396,16 +393,19 @@ class Version:
     def __is_optional_value_less_than(value1: int | None, value2: int | None) -> bool:
         """
         Integer compare for less than where any value may be None.
-        None is considered less than any integer.
+        None is considered less than any integer, but equal to an empty string.
         Both values None are considered not less than.
+        case  value1  ?  value2  < returns
+         a     None  ==   None    False
+         b     None  <    int     True
+         c     int   >    None    False
+         d     int   ?    int     value1 < value2
         """
-        if value1 is None and value2 is None:
-            return False
-        if value1 is None:
+        if value1 is None and value2 is not None:  # case b
             return True
-        if value2 is None:
-            return False
-        return value1 < value2
+        if value1 is not None and value2 is not None:  # case d
+            return value1 < value2
+        return False  # case a, c
 
     @staticmethod
     def __bump_part(part: str, prefix: str, value: str) -> str:
@@ -446,9 +446,6 @@ class Version:
         Do not clear "major" part.
         The clear value is "0" for integer parts and "" for non-integer parts.
         """
-        if not contains(parts, Version.PARSED_PARTS):
-            msg = f"Requires parsed parts ({Version.PARSED_PARTS}), given: {parts}"
-            raise ValueError(msg)
         for part in parts:
             # do not clear major
             if part in ["epoch", "minor", "patch"]:
@@ -457,18 +454,3 @@ class Version:
                     setattr(self, part, 0)
             elif part != "major":
                 setattr(self, part, "")
-
-
-def contains(small: Sequence[Any], big: Sequence[Any]) -> bool | tuple[int, int]:
-    """
-    Test if a small sequence is contained in a big sequence.
-    From:
-    https://stackoverflow.com/questions/3847386/how-to-test-if-a-list-contains-another-list-as-a-contiguous-subsequence
-    """
-    for i in range(len(big) - len(small) + 1):
-        for j in range(len(small)):
-            if big[i + j] != small[j]:
-                break
-        else:
-            return i, i + len(small)
-    return False

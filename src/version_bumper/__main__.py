@@ -93,11 +93,11 @@ class Settings(ApplicationSettings):
         """
         # use normal argparse commands to add arguments to the given parser.  Example:
 
-        def add_common_arguments(parser: argparse.ArgumentParser) -> None:
+        def add_common_arguments(_parser: argparse.ArgumentParser) -> None:
             """
             Add these arguments to the given parser.
             """
-            parser.add_argument(
+            _parser.add_argument(
                 "--pyproject",
                 dest="pyproject_toml_path",
                 default=pyproject_toml_path,
@@ -135,7 +135,8 @@ class Settings(ApplicationSettings):
         set_parser.add_argument("part", choices=Version.PARTS, help="Set this part of the current version.")
         set_parser.add_argument("value", nargs="?", default="", type=str, help="Set the version part to this value.")
         set_parser.add_argument(
-            "--clear_right",
+            "--clear-right",
+            dest="clear_right",
             action="store_true",
             help="Clear the parts of the current version to the right of the part.",
         )

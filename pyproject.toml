@@ -484,10 +484,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-exclude_also = [
-  '\.\.\.',
-  'if typing.TYPE_CHECKING:',
-]
 
 ### local Taskfile.yml options (not Taskfile options)
 

@@ -16,18 +16,18 @@ from version_bumper.version import Version
 
 class PyProject:
     @classmethod
-    def load_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str]) -> list[Version]:
+    def load_version(cls, pyproject_toml_path: Path, key_dot_notation_list: list[str]) -> list[Version | None]:
         """
         Load the versions specified by a list of dotted keys from the pyproject.toml file.
         """
-        versions: list[Version] = []
+        versions: list[Version | None] = []
         with pyproject_toml_path.open(encoding="utf-8") as f:
             doc: TOMLDocument = tomlkit.load(f)
             for key_dot_notation in key_dot_notation_list:
                 field: Any = doc
                 for key in key_dot_notation.split("."):
                     field = field.get(key)
-                versions.append(Version(field))
+                versions.append(Version(field) if field is not None else None)
         return versions
 
     @classmethod

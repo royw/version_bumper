@@ -250,7 +250,8 @@ tasks:
     desc: Run the unit tests with coverage.
     cmds:
       - "{{.DEV_RUNNER}} pytest --cov-report term-missing --cov-report
-        json:metrics/coverage.json --cov=./ tests"
+        json:metrics/coverage.json --cov-report html:metrics/coverage
+        --cov=./src tests"
 
   docs:
     desc: Create the project documentation and open in the browser.
@@ -275,6 +276,7 @@ tasks:
       - task: fe:env-prune
       - rm -rf .tox
       - rm -rf .nox
+      - rm -rf .coverage
       - rm -rf build
       - rm -rf dist
       - rm -rf metrics

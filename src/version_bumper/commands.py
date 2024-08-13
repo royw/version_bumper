@@ -20,7 +20,7 @@ def version_command(settings: argparse.Namespace) -> None:
     """
     __save_version(pyproject_toml_path=settings.pyproject_toml_path, version=Version(settings.value))
     if not settings.silent:
-        __output(settings, {"version": str(settings.value)})
+        __output(settings=settings, versions={"version": str(settings.value)})
 
 
 def get_command(settings: argparse.Namespace) -> None:
@@ -33,15 +33,15 @@ def get_command(settings: argparse.Namespace) -> None:
     keys.append("project.version") if settings.project else None
     keys.append("tool.poetry.version") if settings.poetry else None
 
-    version_list: list[Version] = PyProject.load_version(
+    version_list: list[Version | None] = PyProject.load_version(
         pyproject_toml_path=settings.pyproject_toml_path, key_dot_notation_list=keys
     )
-    if settings.project:
+    if settings.project and version_list is not None:
         versions["project.version"] = str(version_list.pop(0))
 
-    if settings.poetry:
+    if settings.poetry and version_list is not None:
         versions["tool.poetry.version"] = str(version_list.pop(0))
-    __output(settings, versions)
+    __output(settings=settings, versions=versions)
 
 
 def bump_command(settings: argparse.Namespace) -> None:
@@ -49,7 +49,7 @@ def bump_command(settings: argparse.Namespace) -> None:
     A version consists of several parts: epoch, major, minor, patch, release, a, b, rc, post, dev, and local.
     This method allows incrementing any of the individual parts.
     """
-    version: Version | None = __load_version(settings)
+    version: Version | None = __load_version(settings=settings)
     if version is None:
         errmsg = (
             f"Unable to extract neither project.version nor tool.poetry.version "
@@ -57,9 +57,9 @@ def bump_command(settings: argparse.Namespace) -> None:
         )
         raise ValueError(errmsg)
 
-    version.bump(settings.part)
+    version.bump(part=settings.part)
     __save_version(pyproject_toml_path=settings.pyproject_toml_path, version=version)
-    __output(settings, {"version": str(version)})
+    __output(settings=settings, versions={"version": str(version)})
 
 
 def release_command(settings: argparse.Namespace) -> None:
@@ -77,7 +77,7 @@ def release_command(settings: argparse.Namespace) -> None:
 
     version.bump_release()
     __save_version(pyproject_toml_path=settings.pyproject_toml_path, version=version)
-    __output(settings, {"version": str(version)})
+    __output(settings=settings, versions={"version": str(version)})
 
 
 def set_command(settings: argparse.Namespace) -> None:
@@ -93,9 +93,9 @@ def set_command(settings: argparse.Namespace) -> None:
         )
         raise ValueError(errmsg)
 
-    version.set(part=settings.part, value=settings.value)
+    version.set(part=settings.part, value=settings.value, clear_right=settings.clear_right)
     __save_version(pyproject_toml_path=settings.pyproject_toml_path, version=version)
-    __output(settings, {"version": str(version)})
+    __output(settings=settings, versions={"version": str(version)})
 
 
 def __save_version(pyproject_toml_path: Path, version: Version) -> None:
@@ -105,12 +105,12 @@ def __save_version(pyproject_toml_path: Path, version: Version) -> None:
     but will not be created.
     """
     # if tool.poetry.version exists, then overwrite it
-    versions: list[Version] = PyProject.load_version(
+    versions: list[Version | None] = PyProject.load_version(
         pyproject_toml_path=pyproject_toml_path, key_dot_notation_list=["tool.poetry.version"]
     )
 
     keys = ["project.version"]
-    if versions:
+    if versions[0] is not None:
         # only update tool.poetry.version, i.e. DO NOT CREATE
         keys.append("tool.poetry.version")
 
@@ -118,24 +118,24 @@ def __save_version(pyproject_toml_path: Path, version: Version) -> None:
     PyProject.save_version(pyproject_toml_path=pyproject_toml_path, key_dot_notation_list=keys, version=version)
 
 
-def __sanity_check_loaded_versions(project_version: Version, poetry_version: Version | None) -> Version:
+def __sanity_check_loaded_versions(project_version: Version | None, poetry_version: Version | None) -> Version | None:
     """
     A pyproject.toml file must contain project.version and optionally tool.poetry.version.
     This method returns the project version and will raise ValueError if tool.poetry.version exists and doesn't
     match the project.version.
     """
-    if poetry_version and project_version != poetry_version:
+    if poetry_version is not None and project_version != poetry_version:
         errmsg = f"project.version {project_version!s} does not match tool.poetry.version {poetry_version!s}"
         raise ValueError(errmsg)
     return project_version
 
 
-def __load_version(settings: argparse.Namespace) -> Version:
+def __load_version(settings: argparse.Namespace) -> Version | None:
     """
     Loads the version from the pyproject.toml file.
     """
     # try to load both project.version and tool.poetry.version
-    versions: list[Version] = PyProject.load_version(
+    versions: list[Version | None] = PyProject.load_version(
         pyproject_toml_path=settings.pyproject_toml_path,
         key_dot_notation_list=["project.version", "tool.poetry.version"],
     )
