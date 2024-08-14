@@ -216,6 +216,11 @@ tasks:
     cmds:
       - "{{.DEFAULT_RUNNER}} python3 -m check_pyproject --version"
 
+  bump:
+    desc: "Bump the version. Required arg one of: dev, patch, minor, major"
+    cmds:
+      - scripts/bump-version "{{.CLI_ARGS}}"
+
   pypi-version:
     desc:
       Get the current version of the given package(s) from pypi and output as
@@ -336,14 +341,24 @@ tasks:
       Disable backend to use requirements.txt files managed by pip-compile as
       lock files.
     cmds:
-      - fe:lockfiles-disable
+      - task fe:lockfiles-disable
 
   lockfiles-enable:
     desc:
       Enable backend to use requirements.txt files managed by pip-compile as
       lock files.
     cmds:
-      - fe:lockfiles-enable
+      - task fe:lockfiles-enable
+
+  publish-test-pypi:
+    desc: Publish to the test.pypi.org server.
+    cmds:
+      - task fe:publish-test-pypi
+
+  publish-pypi:
+    desc: Publish to the pypi.org server.
+    cmds:
+      - task fe:publish-pypi
 
   main:
     desc:
@@ -351,13 +366,3 @@ tasks:
       task main -- --version"
     cmds:
       - "{{.DEFAULT_RUNNER}} python3 -m version_bumper {{.CLI_ARGS}}"
-
-  publish-test-pypi:
-    desc: Publish to the test.pypi.org server.
-    cmds:
-      - echo "Not Implemented"
-
-  publish-pypi:
-    desc: Publish to the pypi.org server.
-    cmds:
-      - echo "Not Implemented"
