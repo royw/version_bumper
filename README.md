@@ -14,102 +14,54 @@ SPDX-License-Identifier: MIT
 
 <!-- TOC -->
 
-- [Version Bumper](#Version Bumper)
+- [Version Bumper](#version-bumper)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
-  - [Getting Started](#getting-started)
-  - [Architecture](#architecture)
   - [Prerequisites](#prerequisites)
+  - [Development Environment](#development-environment)
   - [Installation](#installation)
-  - [Workflows](#workflows)
-    - [Tasks](#tasks)
-    - [Switching between Poetry and Hatch](#switching-between-poetry-and-hatch)
-    - [Adding a dependency using poetry](#adding-a-dependency-using-poetry)
-    - [Adding a dependency using hatch](#adding-a-dependency-using-hatch)
+  - [Workflow](#workflow)
   - [License](#license)
-  - [References](#references) _ [Build tools](#build-tools) _
-  [FawltyDeps](#fawltydeps) \* [Documentation tools](#documentation-tools)
+  - [References](#references)
   <!-- TOC -->
 
 ## Overview
 
-Oh no! Not another version bump utility!
+Oh, no! Not another version bump utility!
 
-`version_bumper` fully complies with the version definition in the Python
-Packaging Authority's (PyPA) (https://www.pypa.io/) Python Packaging User Guide
-[Version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers)
-to manage both `project.version` and `tool.poetry.version` key/value pairs of
-the project's
-[pyproject.toml](https://packaging.python.org/en/latest/specifications/pyproject-toml/#pyproject-toml-spec)
-file. Further `version_bumper` lets you set or bump individual parts of the
-version as well as setting or getting the full version. Finally the input and
-outputs may be specified in json, text, or human readable console.
+`version_bumper` is a PyPA Version compliant bumper that can bump (increment
+by 1) any part of the version and supports pyproject.toml for both hatch and
+poetry.
 
-A full suite of test cases server as both examples and validation.
+What this means is:
 
-## Development Environment
+- `version_bumper` fully complies with the version definition in the Python
+  Packaging Authority's (PyPA) (https://www.pypa.io/) Python Packaging User
+  Guide
+  [Version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers)
+  specification (originally PEP440).
 
-See the [Developer README](DEV-README.md) for information on the development
-environment.
+- `version_bumper` manages the version(s) in the
+  [pyproject.toml](https://packaging.python.org/en/latest/specifications/pyproject-toml/#pyproject-toml-spec)
+  file.
 
-## Getting Started
+  - Poetry uses the key/value pair `tool.poetry.version` (expecting this to
+    change when version 2 is released)
+  - other tools use the current PyPA standard key/value pair `project.version`
+  - `project.version` is required to exist.
+  - if `tool.poetry.version` exists, then it will be mirrored when
+    `project.version` is updated.
+  - if `tool.poetry.version` does not exist, then `version_bumper` will NOT
+    create it.
 
-Create the project with (if you want to be able to resync from the template):
+- `version_bumper` lets you set or bump individual parts of the version as well
+  as setting or getting the full version.
 
-    cruft create https://github.com/royw/cookiecutter-clibones
+- `version_bumper` supports input and output in json, text (for bash scripts),
+  or human-readable console.
 
-or
-
-    cookiecutter https://github.com/royw/cookiecutter-clibones
-
-then answering the project questions. To use, you need to run:
-
-    cd program_slug         # from the cookiecutter questions
-    pyenv local 3.11 3.12   # or whatever python versions you need
-    task init
-    task build
-
-The framework is now ready for all of your good stuff.
-
-A couple of useful commands:
-
-    task                # shows available tasks
-    less Taskfile.yml   # shows the commands that form each task.  Feel free to customize.
-    poetry lock         # for when the poetry.lock gets out of sync with pyproject.toml
-
-## Architecture
-
-The architecture used is a Settings context manager that handles all the command
-line and config file argument definition, parsing, and validation.
-
-The application's entry point is in `version_bumper/__main__.py`. In
-`__main.py__` there are several TODOs that you will need to visit and clear.
-
-The application may be run with any of the following:
-
-- `python3 -m version_bumper --help`
-- `poetry run python3 -m version_bumper --help`
-- `task main --help`
-
-So in general, for each command line argument you ought to:
-
-- optionally add an argument group to the parser in `Settings.add_arguments()`
-- add argument to the parser in `Settings.add_arguments()`
-- optionally add validation to `Settings.validate_arguments()`
-
-Refer to `application_settings.py` which implements help and logging as
-examples.
-
-The `__example_application()` demonstrates using a `GracefulInterruptHandler` to
-capture ^C for a main loop.
-
-Next take a look at `main.main()` which demonstrates the use of the Settings
-context manager.
-
-The `Settings` does have a few extra features including:
-
-- config files are supported for any command arguments you want to persist.
-- standard logging setup via command line arguments.
+- `version_bumper` has a full suite (100% coverage) of tests that serve as both
+  examples and validation.
 
 ## Prerequisites
 
@@ -134,6 +86,11 @@ The `Settings` does have a few extra features including:
   - Install [pip-tools](https://pypi.org/project/pip-tools/)
   - Install [twine](https://twine.readthedocs.io/)
 
+## Development Environment
+
+See the [Developer README](DEV-README.md) for information on the development
+environment.
+
 ## Installation
 
 Install the package using your favorite dev tool. Examples:
@@ -147,64 +104,94 @@ _Note, `task init` will run `git init .`, `git add` the initial project files,
 and do a `git commit`. If you are using another VCS, please first edit the init
 task in the `Taskfile-*.yml` files._
 
-## Workflows
+## Workflow
 
-### Tasks
+Let's demonstrate what version_bumper can do.
 
-The `Taskfile.yml` is used to build your workflow as a set of tasks. The initial
-workflow is:
+    ➤ version_bumper
+    usage: Version Bumper [-h] [--config FILE] [--save-config] [--save-config-as FILE] [-v] [--longhelp] [--loglevel {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--debug] [--quiet] [--logfile LOGFILE]
+                          {bump,version,set,get,release} ...
+    Version Bumper: error: A command argument (set, get, bump, release, version) or an informational option (--help, --longhelp, --version) is required
 
-    task clean  # removes all build artifacts (metrics, docs,...)
-    task build  # lints, formats, checks pyproject.toml, and generates metrics, performs unit tests,
-                  performs multi-python version testing, and creates the package.
-    task docs   # creates local documentation, starts a local server, opens the home page of the documents in a browser.
-    task main   # launches the application in the poetry environment.
+OK, so we have to give it a command or an informational option. I'll leave the
+informational options as an exercise for the reader.
 
-This is a starting off point so feel free to CRUD the tasks to fit your needs,
-or not even use it.
+Valid help commands are:
 
-### Switching between Poetry and Hatch
+    ➤ version_bumper --help
+    ➤ version_bumper set --help
+    ➤ version_bumper get --help
+    ...
 
-The tasks that support switching the build system:
+Let's get the version(s):
 
-    task switch-to-poetry
-    task switch-to-hatch
-    task switch-to-setuptools
+    ➤ version_bumper get
+    project.version: 0.1.1
+    tool.poetry.version: 0.1.1
 
-They set the symbolic link for `taskfiles/front-end.yaml` to the appropriate
-`taskfiles/poetry.yaml`, `taskfiles/hatch.yaml`, or `taskfiles/setuptools.yaml`.
-Note that `taskfiles/front-end.yaml` is imported by `Taskfile.yaml` as `fe`
-which stands for "front end":
+and as json:
 
-    includes:
-      fe: taskfiles/front-end.yaml
+    ➤ version_bumper get --json
+    {"project.version": "0.1.1", "tool.poetry.version": "0.1.1"}
 
-Also, the switch tasks edit the `build-system` table in the `pyproject.toml`
-file to the appropriate back-end.
+and as text:
 
-### Adding a dependency using poetry
+    ➤ version_bumper get --text
+    0.1.1
+    0.1.1
 
-Add the dependency using the poetry CLI.
+For getting the version in a bash script, you probably want to specify which
+version and get just a single value:
 
-    poetry add --group dev some_tool
-    task build
+    ➤ PROJECT_VERSION=$(version_bumper get --text --project)
+    ➤ echo $PROJECT_VERSION
+    0.1.1
 
-The build ought to fail as [project] and [tool.poetry] dependencies are now out
-of sync. But the output includes the PEP 508 dependency just added that you can
-copy and paste into the [project] table's appropriate dependency.
+Setting the version(s) in the pyproject is simple:
 
-    task build
+    ➤ version_bumper version "1.2.3a4+54321" --json
+    {"version": "1.2.3a4+54321"}
 
-Should pass this time.
+Setting the prerelease part of the version without change any other part:
 
-### Adding a dependency using hatch
+    ➤ version_bumper set a 5 --json
+    {"version": "1.2.3a5+54321"}
 
-Manually edit the `pyproject.toml` file and add the dependency to both [project]
-and [tool.poetry] dependency tables. Then running
+Now let's say we want to bump the pre-release (a5):
 
-    task build
+    ➤ version_bumper bump a --json
+    {"version": "1.2.3a6"}
 
-Will show any version specifier mismatches...
+Notice bumping clears everything to the right, unless you are bumping the epoch:
+
+    ➤ version_bumper bump epoch
+    version: 1!1.2.3a6
+
+The set command can optional clear everything to the right:
+
+    ➤ version_bumper bump dev
+    version: 1!1.2.3a6.dev1
+    ➤ version_bumper set local "foo0123"
+    version: 1!1.2.3a6.dev1+foo0123
+    ➤ version_bumper set minor 4
+    version: 1!1.4.3a6.dev1+foo0123
+    ➤ version_bumper set minor 5 --clear-right
+    version: 1!1.5.0
+
+Let's set the epoch back to 0:
+
+    ➤ version_bumper set epoch 0
+    version: 1.5.0
+
+And now make it a release candidate:
+
+    ➤ version_bumper bump rc --json
+    {"version": "1.5.0rc1"}
+
+Finally let's make it the release version:
+
+    ➤ version_bumper release --json
+    {"version": "1.5.0"}
 
 ## License
 
@@ -219,63 +206,3 @@ Will show any version specifier mismatches...
 - The [Poetry pyproject.toml metadata](https://python-poetry.org/docs/pyproject)
 - [pip documentation](https://pip.pypa.io/en/stable/)
 - [Setuptools](https://setuptools.pypa.io/)
-
-### Build tools
-
-- [loguru](https://loguru.readthedocs.io) improved logging.
-- [pytest](https://docs.pytest.org) unit testing.
-- [pathvalidate](https://pathvalidate.readthedocs.io)
-- [tox](https://tox.wiki) multiple python testing.
-- [radon](https://radon.readthedocs.io) code metrics.
-- [Ruff](https://docs.astral.sh/ruff/) is an extremely fast Python linter and
-  code formatter, written in Rust.
-- [FawltyDeps](https://github.com/tweag/FawltyDeps) is a dependency checker for
-  Python that finds undeclared and/or unused 3rd-party dependencies in your
-  Python project.
-- [Reuse](https://reuse.readthedocs.io/) is a tool for compliance with the
-  [REUSE](https://reuse.software/) recommendations.
-- [MyPy](https://www.mypy-lang.org/)
-
-#### FawltyDeps
-
-This tool does a great job in helping keep bloat out of your project. There is
-one small issue with it, it does not distinguish project dependencies from
-dev/test/doc/... dependencies. So you have to manually add any new tools to the
-used list in your [pyproject.toml], like:
-
-    poetry run fawltydeps --detailed --ignore-unused radon pytest-cov pytest tox fawltydeps mkdocs
-        mkdocstrings-python mkdocs-literate-nav mkdocs-section-index ruff mkdocs-material
-
-### Documentation tools
-
-After years of suffering with the complexity of sphinx and RST (the PyPA
-recommended documentation tool), this project uses MkDocs and MarkDown.
-Whoooooop!
-
-**_Here is a big THANK YOU to the MkDocs team, the plugin teams, and the theme
-teams!_**
-
-**_Fantastic!_**
-
-Plugins do a nice job of
-[automatic code reference](https://mkdocstrings.github.io/recipes/#automatic-code-reference-pages),
-and a fantastic theme from the mkdocs-material team!
-
-Configuration is in the `mkdocs.yml` file and the `docs/` and `scripts/`
-directories.
-
-The `task docs` will build the documentation into a static site, `site/`, and
-run a server at http://localhost:8000/ and open the page in your browser.
-
-- [MkDocs](https://www.mkdocs.org/) Project documentation with Markdown.
-- [mkdocs-gen-files](https://github.com/oprypin/mkdocs-gen-files) Plugin for
-  MkDocs to programmatically generate documentation pages during the build
-- [mkdocs-literate-nav](https://github.com/oprypin/mkdocs-literate-nav) Plugin
-  for MkDocs to specify the navigation in Markdown instead of YAML
-- [mkdocs-section-index](https://github.com/oprypin/mkdocs-section-index) Plugin
-  for MkDocs to allow clickable sections that lead to an index page
-- [mkdocstrings](https://mkdocstrings.github.io/) Automatic documentation from
-  sources, for MkDocs.
-- [catalog](https://github.com/mkdocs/catalog) Catalog of MkDocs plugins.
-- [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) Material
-  theme.
