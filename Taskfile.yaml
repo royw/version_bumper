@@ -360,9 +360,9 @@ tasks:
     cmds:
       - task fe:publish-pypi
 
-  main:
+  version_bumper:
     desc:
       "Run the __main__ module code, passing arguments to the module.  Example:
-      task main -- --version"
+      task version_bumper -- --version"
     cmds:
       - "{{.DEFAULT_RUNNER}} python3 -m version_bumper {{.CLI_ARGS}}"
