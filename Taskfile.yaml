@@ -351,3 +351,13 @@ tasks:
       task main -- --version"
     cmds:
       - "{{.DEFAULT_RUNNER}} python3 -m version_bumper {{.CLI_ARGS}}"
+
+  publish-test-pypi:
+    desc: Publish to the test.pypi.org server.
+    cmds:
+      - echo "Not Implemented"
+
+  publish-pypi:
+    desc: Publish to the pypi.org server.
+    cmds:
+      - echo "Not Implemented"
