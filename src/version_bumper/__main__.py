@@ -169,6 +169,14 @@ class Settings(ApplicationSettings):
         :return: a list of error messages or an empty list
         """
         errors: list[str] = []
+
+        # a command argument is required.
+        if settings.command is None:
+            errors.append(
+                "A command argument (set, get, bump, release, version) or an informational option "
+                "(--help, --longhelp, --version) is required"
+            )
+
         # we want the default for the get command to get both project.version and tool.poetry.version.
         # if a single argument is given (i.e., --project or --poetry), then we want to just get that version.
         if settings.command == "get" and (not settings.project and not settings.poetry):
