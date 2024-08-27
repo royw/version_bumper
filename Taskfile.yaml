@@ -357,7 +357,7 @@ tasks:
       - mkdir test-install
       - python3 -m venv test-install/.venv
       - test-install/.venv/bin/pip3 install -i https://test.pypi.org/simple/
-        check_pyproject --extra-index-url https://pypi.org/simple/
+        {{.APP_NAME}} --extra-index-url https://pypi.org/simple/
       - test-install/.venv/bin/{{.APP_NAME}} --version
       - echo "ok to delete test-install/"
 

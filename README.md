@@ -1,5 +1,6 @@
 <!--
 SPDX-FileCopyrightText: 2024 Roy Wright
+
 SPDX-License-Identifier: MIT
 -->
 
@@ -17,10 +18,11 @@ SPDX-License-Identifier: MIT
 - [Version Bumper](#version-bumper)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
-  - [Prerequisites](#prerequisites)
-  - [Development Environment](#development-environment)
+  - [Usage](#usage)
   - [Installation](#installation)
-  - [Workflow](#workflow)
+    - [PyPI Installation](#pypi-installation)
+    - [Development Installation](#development-installation)
+      - [Development Prerequisites](#development-prerequisites)
   - [License](#license)
   - [References](#references)
   <!-- TOC -->
@@ -30,8 +32,8 @@ SPDX-License-Identifier: MIT
 Oh, no! Not another version bump utility!
 
 `version_bumper` is a PyPA Version compliant bumper that can bump (increment
-by 1) any part of the version and supports pyproject.toml for both hatch and
-poetry.
+by 1) any part of the version and supports pyproject.toml's project.version and
+tool.poetry.version key/value pairs.
 
 What this means is:
 
@@ -49,7 +51,7 @@ What this means is:
     change when version 2 is released)
   - other tools use the current PyPA standard key/value pair `project.version`
   - `project.version` is required to exist.
-  - if `tool.poetry.version` exists, then it will be mirrored when
+  - if `tool.poetry.version` exists, then it will be updated when
     `project.version` is updated.
   - if `tool.poetry.version` does not exist, then `version_bumper` will NOT
     create it.
@@ -63,48 +65,7 @@ What this means is:
 - `version_bumper` has a full suite (100% coverage) of tests that serve as both
   examples and validation.
 
-## Prerequisites
-
-- Install the task manager: [Task](https://taskfile.dev/)
-- Optionally install [pyenv-installer](https://github.com/pyenv/pyenv-installer)
-
-  - Install dependent pythons, example:
-
-    `pyenv local 3.11.9 3.12.3`
-
-  _Note you may need to install some libraries for the pythons to compile
-  cleanly._ _For example on ubuntu (note I prefer `nala` over `apt`):_
-
-  `sudo nala install tk-dev libbz2-dev libreadline-dev libsqlite3-dev lzma-dev python3-tk libreadline-dev`
-
-- Recommended to upgrade pip to latest.
-- Optionally install [Poetry](https://python-poetry.org/)
-- Optionally install [Hatch](https://hatch.pypa.io/)
-  - Install [pip-tools](https://pypi.org/project/pip-tools/)
-- Optionally install [setuptools](https://setuptools.pypa.io/)
-  - Install [build](https://build.pypa.io/)
-  - Install [pip-tools](https://pypi.org/project/pip-tools/)
-  - Install [twine](https://twine.readthedocs.io/)
-
-## Development Environment
-
-See the [Developer README](DEV-README.md) for information on the development
-environment.
-
-## Installation
-
-Install the package using your favorite dev tool. Examples:
-
-- `git clone git@github.com:royw/version_bumper.git`
-- `cd version_bumper`
-- `task init`
-- `task build`
-
-_Note, `task init` will run `git init .`, `git add` the initial project files,
-and do a `git commit`. If you are using another VCS, please first edit the init
-task in the `Taskfile-*.yml` files._
-
-## Workflow
+## Usage
 
 Let's demonstrate what version_bumper can do.
 
@@ -192,6 +153,53 @@ Finally let's make it the release version:
 
     ➤ version_bumper release --json
     {"version": "1.5.0"}
+
+Please see the unit tests in tests/ directory for more examples.
+
+## Installation
+
+### PyPI Installation
+
+`pip install version_bumper`
+
+### Development Installation
+
+#### Development Prerequisites
+
+- Install the task manager: [Task](https://taskfile.dev/)
+- Optionally install [pyenv-installer](https://github.com/pyenv/pyenv-installer)
+
+  - Install dependent pythons, example:
+
+    `pyenv local 3.11.9 3.12.3`
+
+  _Note you may need to install some libraries for the pythons to compile
+  cleanly._ _For example on ubuntu (note I prefer `nala` over `apt`):_
+
+  `sudo nala install tk-dev libbz2-dev libreadline-dev libsqlite3-dev lzma-dev python3-tk libreadline-dev`
+
+- Recommended to upgrade pip to latest.
+- Optionally install [Poetry](https://python-poetry.org/)
+- Optionally install [Hatch](https://hatch.pypa.io/)
+  - Install [pip-tools](https://pypi.org/project/pip-tools/)
+- Optionally install [setuptools](https://setuptools.pypa.io/)
+  - Install [build](https://build.pypa.io/)
+  - Install [pip-tools](https://pypi.org/project/pip-tools/)
+  - Install [twine](https://twine.readthedocs.io/)
+
+Install the package using your favorite dev tool. Examples:
+
+- `git clone git@github.com:royw/version_bumper.git`
+- `cd version_bumper`
+- `task init`
+- `task build`
+
+_Note, `task init` will run `git init .`, `git add` the initial project files,
+and do a `git commit`. If you are using another VCS, please first edit the init
+task in the `Taskfile.yaml` file._
+
+See the [Developer README](DEV-README.md) for detailed information on the
+development environment.
 
 ## License
 
