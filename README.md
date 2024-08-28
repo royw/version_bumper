@@ -181,11 +181,8 @@ Please see the unit tests in tests/ directory for more examples.
 - Recommended to upgrade pip to latest.
 - Optionally install [Poetry](https://python-poetry.org/)
 - Optionally install [Hatch](https://hatch.pypa.io/)
-  - Install [pip-tools](https://pypi.org/project/pip-tools/)
 - Optionally install [setuptools](https://setuptools.pypa.io/)
   - Install [build](https://build.pypa.io/)
-  - Install [pip-tools](https://pypi.org/project/pip-tools/)
-  - Install [twine](https://twine.readthedocs.io/)
 
 Install the package using your favorite dev tool. Examples:
 
