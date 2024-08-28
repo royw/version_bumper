@@ -384,3 +384,8 @@ tasks:
         sh: "{{.DEV_RUNNER}} toml get --toml-path pyproject.toml project.name"
     cmds:
       - "{{.DEFAULT_RUNNER}} {{.APP_NAME}} {{.CLI_ARGS}}"
+
+  version-bumper:
+    desc: "Manage the project's version with version-bumper"
+    cmds:
+      - "{{.DEFAULT_RUNNER}} version_bumper {{.CLI_ARGS}}"
