@@ -100,13 +100,11 @@ class Settings(ApplicationSettings):
             _parser.add_argument(
                 "--pyproject",
                 dest="pyproject_toml_path",
-                default=pyproject_toml_path,
+                default=Path("pyproject.toml"),
                 type=Path,
                 action="store",
                 help="pyproject.toml file update the version within.",
             )
-
-        pyproject_toml_path = Path(__file__).parent.parent.parent.joinpath("pyproject.toml").resolve()
 
         subparsers = parser.add_subparsers(dest="command")
 
@@ -161,7 +159,7 @@ class Settings(ApplicationSettings):
         release_parser.add_argument("--text", action="store_true", help='Output as text string, ex: "1.2.3"')
         add_common_arguments(release_parser)
 
-    def validate_arguments(self, settings: argparse.Namespace, remaining_argv: list[str]) -> list[str]:  # noqa: ARG002
+    def validate_arguments(self, settings: argparse.Namespace, remaining_argv: list[str]) -> list[str]:
         """This provides a hook for validating the settings after the parsing is completed.
 
         :param settings: the settings object returned by ArgumentParser.parse_args()
@@ -169,6 +167,9 @@ class Settings(ApplicationSettings):
         :return: a list of error messages or an empty list
         """
         errors: list[str] = []
+
+        if remaining_argv:
+            errors.append(f"The following arguments are unrecognized/unsupported: {remaining_argv}")
 
         # a command argument is required.
         if settings.command is None:
@@ -205,6 +206,9 @@ def main(args: list[str] | None = None) -> int:
         try:
             commands[settings.command](settings)
         except ValueError as ex:
+            logger.error(ex)
+            return 1
+        except FileNotFoundError as ex:
             logger.error(ex)
             return 1
     return 0
