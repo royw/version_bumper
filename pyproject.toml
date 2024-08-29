@@ -463,7 +463,7 @@ ignore_unused = ["radon", "pytest-cov", "pytest", "tox", "fawltydeps", "mkdocs",
   "flict", "furo", "liccheck", "mypy", "myst-parser", "pre-commit", "reuse", "sphinx",
   "sphinx-autodoc-typehints", "sphinx-copybutton", "sphinx_copybutton", "tomlkit", "validate-pyproject",
   "blacken-docs", "pyupgrade", "shellcheck-py", "coverage", "mkdocstrings", "toml-cli", "build", "httpx",
-  "pip-tools", "twine",
+  "pip-tools", "twine", "pytest-xdist",
   "check-pyproject",
 ]
 output_format = "human_detailed"  # Detailed report by default
