@@ -189,7 +189,7 @@ Install the package using your favorite dev tool. Examples:
 - `git clone git@github.com:royw/version_bumper.git`
 - `cd version_bumper`
 - `task init`
-- `task build`
+- `task make`
 
 _Note, `task init` will run `git init .`, `git add` the initial project files,
 and do a `git commit`. If you are using another VCS, please first edit the init
