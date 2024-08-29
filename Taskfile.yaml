@@ -213,8 +213,11 @@ tasks:
 
   version:
     desc: Run the project, having it return its version.
+    vars:
+      APP_NAME:
+        sh: "{{.DEV_RUNNER}} toml get --toml-path pyproject.toml project.name"
     cmds:
-      - "{{.DEFAULT_RUNNER}} python3 -m check_pyproject --version"
+      - "{{.DEFAULT_RUNNER}} python3 -m {{.APP_NAME}} --version"
 
   pypi-version:
     desc:
