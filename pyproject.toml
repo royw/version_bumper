@@ -21,7 +21,7 @@ name = "version_bumper"
 # TOML type: string
 # The version of the project, as defined in the Version specifier specification.
 # Users SHOULD prefer to specify already-normalized versions
-version = "0.1.2a1"
+version = "0.1.2"
 
 # TOML type: string
 # The summary description of the project in one line. Tools MAY error if this includes multiple lines.
@@ -158,13 +158,10 @@ test = [
   "tox<5.0.0,>=4.14.2",
 ]
 docs = [
-  "mkdocs<2.0.0,>=1.6.0",
-  "mkdocstrings<0.26.0,>=0.25.1",
-  "mkdocstrings-python<2.0.0,>=1.10.3",
-  "mkdocs-gen-files<0.6.0,>=0.5.0",
-  "mkdocs-literate-nav<0.7.0,>=0.6.1",
-  "mkdocs-section-index<0.4.0,>=0.3.9",
-  "mkdocs-material<10.0.0,>=9.5.25",
+  "mkdocs-material<10.0.0,>=9.5.0",
+  "mkdocs<2.0.0,>=1.5.0",
+  "mkdocstrings-python<2.0.0,>=1.8.0",
+  "mkdocstrings<0.25.0,>=0.24.0"
 ]
 metrics = [
   "radon<7.0.0,>=6.0.1",
@@ -511,7 +508,7 @@ name = "version_bumper"
 
 # The version of the package. Required in package mode
 # This should be a valid PEP 440 string.
-version = "0.1.2a1"
+version = "0.1.2"
 
 # A short description of the package. Required in package mode
 description = "Python package version utility to bump a version by parts."
@@ -631,13 +628,10 @@ radon = "^6.0.1"
 # When a script is added or updated, run poetry install to make them available in the project’s virtualenv.
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.0"
-mkdocstrings-python = "^1.10.3"
-mkdocs-gen-files = "^0.5.0"
-mkdocs-literate-nav = "^0.6.1"
-mkdocs-material = "^9.5.25"
-mkdocs-section-index = "^0.3.9"
-mkdocstrings = "^0.25.1"
+mkdocs ="^1.5.0"
+mkdocs-material = "^9.5.0"
+mkdocstrings = "^0.24.0"
+mkdocstrings-python = "^1.8.0"
 
 [tool.poetry.group.sphinx]
 optional = true
