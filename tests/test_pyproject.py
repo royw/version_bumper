@@ -8,8 +8,6 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from version_bumper.pyproject import PyProject
 from version_bumper.version import Version
 
@@ -18,8 +16,8 @@ tests_dir = Path(__file__).parent
 
 def test_load_invalid_key() -> None:
     good_pyproject_path = tests_dir / "good_pyproject.toml"
-    with pytest.raises(AttributeError):
-        PyProject.load_version(pyproject_toml_path=good_pyproject_path, key_dot_notation_list=["xyzzy.version"])
+    versions = PyProject.load_version(pyproject_toml_path=good_pyproject_path, key_dot_notation_list=["xyzzy.version"])
+    assert versions[0] is None
 
 
 def test_load_version() -> None:

@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2024 Roy Wright
+# SPDX-FileCopyrightText: 2025 Roy Wright
 #
 # SPDX-License-Identifier: MIT
 
@@ -27,6 +28,8 @@ class PyProject:
                 for key_dot_notation in key_dot_notation_list:
                     field: Any = doc
                     for key in key_dot_notation.split("."):
+                        if field is None:
+                            break
                         field = field.get(key)
                     versions.append(Version(field) if field is not None else None)
         except FileNotFoundError as ex:
@@ -48,7 +51,7 @@ class PyProject:
                         field = field.get(key)
                     field.update({"version": str(version)})
 
-            # write to temporary file then atomically "switch" it with the original using rename.
+            # write to a temporary file, then atomically "switch" it with the original using rename.
             with tempfile.NamedTemporaryFile("wt", dir=pyproject_toml_path.parent, delete=False) as tf:
                 tf.write(tomlkit.dumps(doc))
                 temp_name = Path(tf.name)
