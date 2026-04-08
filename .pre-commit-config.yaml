@@ -15,6 +15,7 @@ repos:
     rev: v3.0.2
     hooks:
       - id: reuse
+        exclude: ^(\.vscode/|uv\.lock$)
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.16.0
