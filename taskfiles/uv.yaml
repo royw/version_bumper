@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: 2024 Roy Wright
+#
+# SPDX-License-Identifier: MIT
+
+version: "3"
+
+vars:
+  UV_RUNNER: uv run --
+  UV_DEV_RUNNER: uv run --
+  UV_DOCS_RUNNER: uv run --
+  UV_TEST_RUNNER: uv run --
+  UV_METRICS_RUNNER: uv run --
+  UV_SPHINX_RUNNER: uv run --
+
+tasks:
+  build:
+    # [private] build dist packages
+    cmds:
+      - uv build
+
+  env-prune:
+    # [private] remove development environment (i.e. virtual environments)
+    cmds:
+      - rm -rf .venv uv.lock
+
+  make-env:
+    # [private] create virtual environment
+    cmds:
+      - uv venv --clear .venv
+
+  show-env:
+    # [private] show env using uv
+    cmds:
+      - echo "Creating virtualenv in .venv"
+      - uv python list
+      - uv run -- python --version
+
+  unit-test:
+    # [private] Run the unit tests for the supported versions of python.
+    cmds:
+      - uv run -- pytest tests
+      - uv run -- tox
+
+  update-env:
+    # [private] Update virtual environment
+    cmds:
+      - task: make-env
+      - uv sync --extra dev --extra test --extra docs --extra metrics --extra
+        sphinx
+
+  lockfiles-enable:
+    # Enable backend to use requirements.txt files managed by pip-compile as lock files.
+    cmds:
+      - echo "Not implemented"
+
+  lockfiles-disable:
+    # [private] Disable backend to use requirements.txt files managed by pip-compile as lock files.
+    cmds:
+      - echo "Not implemented"
+
+  publish-test-pypi:
+    # [private] Publish to the test.pypi.org server.
+    cmds:
+      - echo "Not Implemented"
+
+  publish-pypi:
+    # [private] Publish to the pypi.org server.
+    cmds:
+      - echo "Not Implemented"

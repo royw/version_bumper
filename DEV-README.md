@@ -85,12 +85,16 @@ like [hatch](https://hatch.pypa.io/),
 [flit](https://packaging.python.org/en/latest/key_projects/#flit). Even
 [Setuptools](https://setuptools.pypa.io/) is staying in the race.
 
-So I decided this development environment will support Poetry, Hatch, and
+So I decided this development environment will support uv, Poetry, Hatch, and
 Setuptools.
 
 Poetry is opinionated, uses non-standard revision syntax, and is a little dated
 on its `pyproject.toml` usage (most settings - at least until poetry version 2
 is released, are in the `tool.poetry` table).
+
+uv is now the default development frontend. It manages the project's virtual
+environment and lockfile while still using the configured build backend from
+`pyproject.toml`.
 
 Hatch is hard core standards based, even if they have to wait for the standard
 to be adopted. Should be interesting...
@@ -120,6 +124,7 @@ fantastic!
 Support:
 
 - [Task](https://taskfile.dev/)
+- [uv](https://docs.astral.sh/uv/)
 - [Poetry](https://python-poetry.org/)
 - [Hatch](https://hatch.pypa.io/)
 - [Setuptools](https://setuptools.pypa.io/)
@@ -151,6 +156,7 @@ then answering the project questions. To use, you need to run:
 
     cd program_slug         # from the cookiecutter questions
     pyenv local 3.11 3.12   # or whatever python versions you need
+    task switch-to-uv
     task init
     task build
 
@@ -160,7 +166,7 @@ A couple of useful commands:
 
     task                # shows available tasks
     less Taskfile.yml   # shows the commands that form each task.  Feel free to customize.
-    poetry lock         # for when the poetry.lock gets out of sync with pyproject.toml
+    uv lock             # refresh the uv.lock file from pyproject.toml
 
 ## 20,000 meter view
 
@@ -194,6 +200,7 @@ Let's start with just running task:
     * reuse-enable:               Enable using SPDX reuse for enforcing copyright and license.
     * reuse-lint:                 Perform reuse checks if pyproject.toml: tools.taskfile.reuse is set to "enabled"
     * serve-docs:                 Start the documentation server and open browser at localhost:8000.
+    * switch-to-uv:               Switch development to use uv.
     * switch-to-hatch:            Switch development to use hatch.
     * switch-to-poetry:           Switch development to use poetry.
     * switch-to-setuptools:       Switch development to use setuptools.
@@ -212,23 +219,28 @@ then let's just go for broke and:
 
 Seriously, to start a new project:
 
-1. cookiecutter https://github.com/royw/cookiecutter-clibones
-2. cd {your-project-name}
-3. task init
-4. task build
-5. optionally: task switch-to-setuptools
-6. ...
+1.  cookiecutter https://github.com/royw/cookiecutter-clibones
+2.  cd {your-project-name}
+3.  task switch-to-uv
+4.  task init
+5.  task build
+6.  optionally: task switch-to-setuptools
+7.  ...
 
 Now the make task is the main rinse and repeat task, i.e., make it, correct
 errors, make it,...
 
 But say I prefer hatch, it is easy to switch:
 
-    ➤ task switch-to-hatch
+     ➤ task switch-to-hatch
+
+or switch back to the default uv workflow with:
+
+     ➤ task switch-to-uv
 
 or maybe setuptools:
 
-    ➤ task switch-to-setuptools
+     ➤ task switch-to-setuptools
 
 and to switch back to poetry with:
 

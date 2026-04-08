@@ -8,6 +8,7 @@ includes:
   # "fe" stands for "front end"
   fe: taskfiles/front-end.yaml
   hatch: taskfiles/hatch.yaml
+  uv: taskfiles/uv.yaml
   poetry: taskfiles/poetry.yaml
   setuptools: taskfiles/setuptools.yaml
   variables: taskfiles/front-end-vars.yaml
@@ -35,7 +36,7 @@ tasks:
       - git add docs LICENSES scripts src tests .gitignore
         .pre-commit-config.yaml DEV-README.md mkdocs.yml pyproject.toml
         README.md Taskfile.yaml taskfiles/hatch.yaml taskfiles/poetry.yaml
-        tox.ini
+        taskfiles/uv.yaml taskfiles/uv-vars.yaml tox.ini
       # Realizing the template can mess up formatting of the files
       - pre-commit run blacken-docs --all-files >/dev/null || true
       - pre-commit run trailing-whitespace --all-files >/dev/null || true
@@ -277,7 +278,8 @@ tasks:
   clean:
     desc: Remove virtual environments and generated files.
     cmds:
-      - pre-commit clean
+      - sh -c 'if command -v pre-commit >/dev/null 2>&1; then pre-commit clean
+        || true; fi'
       - task: fe:env-prune
       - rm -rf .tox
       - rm -rf .nox
@@ -301,6 +303,17 @@ tasks:
     # [private] if a virtual environment is active, deactivate it.
     cmds:
       - source .venv/bin/deactivate 2>/dev/null || true
+
+  switch-to-uv:
+    desc: Switch development to use uv.
+    cmds:
+      - task: clean
+      - rm -f taskfiles/front-end.yaml taskfiles/front-end-vars.yaml
+      - ln -s uv.yaml taskfiles/front-end.yaml
+      - ln -s uv-vars.yaml taskfiles/front-end-vars.yaml
+      - task: uv:make-env
+      - task: uv:update-env
+      - task: uv:show-env
 
   switch-to-hatch:
     desc: Switch development to use hatch.

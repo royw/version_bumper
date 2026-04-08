@@ -46,7 +46,6 @@ What this means is:
 - `version_bumper` manages the version(s) in the
   [pyproject.toml](https://packaging.python.org/en/latest/specifications/pyproject-toml/#pyproject-toml-spec)
   file.
-
   - Poetry uses the key/value pair `tool.poetry.version` (expecting this to
     change when version 2 is released)
   - other tools use the current PyPA standard key/value pair `project.version`
@@ -167,29 +166,32 @@ Please see the unit tests in tests/ directory for more examples.
 #### Development Prerequisites
 
 - Install the task manager: [Task](https://taskfile.dev/)
-- Optionally install [pyenv-installer](https://github.com/pyenv/pyenv-installer)
+  - Optionally install
+    [pyenv-installer](https://github.com/pyenv/pyenv-installer)
+    - Install dependent pythons, example:
 
-  - Install dependent pythons, example:
-
-    `pyenv local 3.11.9 3.12.3`
+      `pyenv local 3.11.9 3.12.3`
 
   _Note you may need to install some libraries for the pythons to compile
   cleanly._ _For example on ubuntu (note I prefer `nala` over `apt`):_
 
-  `sudo nala install tk-dev libbz2-dev libreadline-dev libsqlite3-dev lzma-dev python3-tk libreadline-dev`
+      `sudo nala install tk-dev libbz2-dev libreadline-dev libsqlite3-dev lzma-dev python3-tk libreadline-dev`
 
-- Recommended to upgrade pip to latest.
-- Optionally install [Poetry](https://python-poetry.org/)
-- Optionally install [Hatch](https://hatch.pypa.io/)
-- Optionally install [setuptools](https://setuptools.pypa.io/)
-  - Install [build](https://build.pypa.io/)
+  - Install [uv](https://docs.astral.sh/uv/)
+  - Optionally install [Poetry](https://python-poetry.org/)
+  - Optionally install [Hatch](https://hatch.pypa.io/)
+  - Optionally install [setuptools](https://setuptools.pypa.io/)
+    - Install [build](https://build.pypa.io/)
 
-Install the package using your favorite dev tool. Examples:
+  Install the package using the default `uv` workflow. Example:
+  - `git clone git@github.com:royw/version_bumper.git`
+  - `cd version_bumper`
+  - `task switch-to-uv`
+  - `task init`
+  - `task make`
 
-- `git clone git@github.com:royw/version_bumper.git`
-- `cd version_bumper`
-- `task init`
-- `task make`
+  You can still switch to `poetry`, `hatch`, or `setuptools` later with the
+  corresponding `task switch-to-*` command.
 
 _Note, `task init` will run `git init .`, `git add` the initial project files,
 and do a `git commit`. If you are using another VCS, please first edit the init
@@ -208,6 +210,7 @@ development environment.
 - The [Python Packaging User Guide](https://packaging.python.org/en/latest)
 - The
   [pyproject.toml specification](https://pypi.python.org/pypi/pyproject.toml)
+- [uv documentation](https://docs.astral.sh/uv/)
 - The [Poetry pyproject.toml metadata](https://python-poetry.org/docs/pyproject)
 - [pip documentation](https://pip.pypa.io/en/stable/)
 - [Setuptools](https://setuptools.pypa.io/)

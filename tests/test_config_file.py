@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import random
 import tempfile
 from pathlib import Path
 
@@ -45,10 +44,9 @@ def test_invalid_config_file_load() -> None:
     for extension in config_file.supported_extensions:
         with tempfile.TemporaryDirectory() as tmp:
             filepath = Path(tmp) / f"test_data{extension}"
-            with filepath.open("w") as out_fp, Path("/usr/share/dict/words").open("r") as words_fp:
-                words = words_fp.read().splitlines()
-                for _ in range(256):
-                    out_fp.write(f"{random.choice(words)} ")
+            with filepath.open("w") as out_fp:
+                for index in range(256):
+                    out_fp.write(f"invalid_token_{index} ")
 
             with pytest.raises(ValueError):  # NOQA: PT011
                 config_file.load(filepath=filepath)

@@ -97,7 +97,6 @@ The `Settings` does have a few extra features including:
 
 - Install the task manager: [Task](https://taskfile.dev/)
 - Optionally install [pyenv-installer](https://github.com/pyenv/pyenv-installer)
-
   - Install dependent pythons, example:
 
     `pyenv local 3.11.9 3.12.3`
