@@ -55,7 +55,7 @@ class PyProject:
             with tempfile.NamedTemporaryFile("wt", dir=pyproject_toml_path.parent, delete=False) as tf:
                 tf.write(tomlkit.dumps(doc))
                 temp_name = Path(tf.name)
-            temp_name.rename(pyproject_toml_path)
+            temp_name.replace(pyproject_toml_path)
         except FileNotFoundError as ex:
             errmsg = f'Unable to open "{pyproject_toml_path}" for saving - File not found.'
             raise FileNotFoundError(errmsg) from ex
